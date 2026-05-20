@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Iniciar Sesión – SchoolAdmin Pro</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="auth-page">
+
+  <div class="auth-card">
+    <h1 class="auth-logo">SchoolAdmin <span>Pro</span></h1>
+    <h2>Iniciar Sesión</h2>
+
+    <div id="notificacion" class="notificacion" style="display:none;"></div>
+
+    <form id="form-login">
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input type="email" id="email" name="email" placeholder="correo@ejemplo.com" required />
+      </div>
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required />
+      </div>
+      <button type="submit" class="btn-primary btn-block">Entrar</button>
+    </form>
+
+    <p class="auth-link">¿No tienes cuenta? <a href="register.html">Regístrate aquí</a></p>
+  </div>
+
+  <script type="module">
+    import { iniciarSesion, observarAuth } from './js/auth.js';
+    import { mostrarNotificacion } from './js/ui.js';
+
+    observarAuth(usuario => {
+      if (usuario) window.location.href = 'dashboard.html';
+    });
+
+    document.getElementById('form-login').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      try {
+        await iniciarSesion(email, password);
+        window.location.href = 'dashboard.html';
+      } catch (err) {
+        const msg = err.code === 'auth/invalid-credential'
+          ? 'Correo o contraseña incorrectos'
+          : err.message;
+        mostrarNotificacion(msg, 'error');
+      }
+    });
+  </script>
+</body>
+</html>

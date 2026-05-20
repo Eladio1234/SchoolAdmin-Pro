@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SchoolAdmin Pro</title>
+</head>
+<body>
+  <script type="module">
+    import { observarAuth } from './js/auth.js';
+    observarAuth(usuario => {
+      window.location.href = usuario ? 'dashboard.html' : 'login.html';
+    });
+  </script>
+</body>
+</html>

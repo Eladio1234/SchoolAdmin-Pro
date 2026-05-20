@@ -1,0 +1,39 @@
+# Variables de entorno
+.env
+.env.local
+.env.development
+.env.production
+.env*.local
+
+# Claves de Firebase Admin SDK (service accounts)
+*firebase-adminsdk*.json
+*service-account*.json
+*serviceAccount*.json
+
+# Archivos de configuración con credenciales
+firebase-config.js
+firebaseConfig.js
+config.secret.js
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/settings.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Firebase local
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
