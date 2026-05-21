@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Admin – SchoolAdmin Pro</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="dashboard-page">
+
+  <div class="dashboard-layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-header text-center">
+        <h1 class="auth-logo" style="color: var(--white); margin: 0; font-size: 1.5rem;">SchoolAdmin <span>Pro</span></h1>
+        <p style="color: var(--gray-400); font-size: 0.8rem; margin-top: 5px;">Panel de Administración</p>
+      </div>
+
+      <nav class="sidebar-nav tabs">
+        <button class="tab-btn activo" data-tab="tab-alumnos">👨‍🎓 Alumnos</button>
+        <button class="tab-btn" data-tab="tab-docentes">👨‍🏫 Docentes</button>
+        <button class="tab-btn" data-tab="tab-materias">📚 Materias</button>
+        <button class="tab-btn" data-tab="tab-grupos">🏫 Grupos</button>
+        <button class="tab-btn" data-tab="tab-inscripciones">📝 Inscripciones</button>
+      </nav>
+    </aside>
+
+    <div class="main-wrapper">
+      
+      <header class="top-header">
+        <div class="header-right">
+          <span class="badge badge-graduated">Administrador</span>
+          <span id="usuario-email" class="usuario-email" style="font-weight: 600;"></span>
+          <button id="btn-logout" class="btn-logout">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div id="notificacion" class="notificacion oculto"></div>
+
+      <main class="content-area">
+
+        <section id="tab-alumnos" class="tab-panel activo">
+          <h2 class="seccion-titulo">Gestión de Alumnos</h2>
+          <form id="form-alumno" class="form-crud">
+            <h3 class="form-titulo">Nuevo Alumno</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>No. Estudiante *</label>
+                <input type="text" name="studentNumber" placeholder="Ej. A2024001" />
+              </div>
+              <div class="campo">
+                <label>Nombre completo *</label>
+                <input type="text" name="fullName" placeholder="Nombre(s) y Apellidos" />
+              </div>
+              <div class="campo">
+                <label>Email *</label>
+                <input type="email" name="email" placeholder="alumno@escuela.edu" />
+              </div>
+              <div class="campo">
+                <label>Teléfono * (10 dígitos)</label>
+                <input type="tel" name="phone" placeholder="5512345678" maxlength="10" />
+              </div>
+              <div class="campo">
+                <label>Carrera *</label>
+                <input type="text" name="career" placeholder="Ej. Ingeniería en Sistemas" />
+              </div>
+              <div class="campo">
+                <label>Semestre *</label>
+                <input type="number" name="semester" placeholder="Ej. 4" min="1" max="12" />
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="status">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="active">Activo</option>
+                  <option value="inactive">Inactivo</option>
+                  <option value="graduated">Graduado</option>
+                  <option value="dropped">Baja</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-alumno" class="btn-primary">Agregar Alumno</button>
+              <button type="button" id="btn-cancelar-alumno" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-alumnos">
+              <thead>
+                <tr>
+                  <th>No. Estudiante</th>
+                  <th>Nombre completo</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Carrera / Semestre</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="7" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-docentes" class="tab-panel">
+          <h2 class="seccion-titulo">Gestión de Docentes</h2>
+          <form id="form-docente" class="form-crud">
+            <h3 class="form-titulo">Nuevo Docente</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>No. Empleado *</label>
+                <input type="text" name="employeeNumber" placeholder="Ej. EMP001" />
+              </div>
+              <div class="campo">
+                <label>Nombre completo *</label>
+                <input type="text" name="fullName" placeholder="Nombre(s) y Apellidos" />
+              </div>
+              <div class="campo">
+                <label>Email *</label>
+                <input type="email" name="email" placeholder="docente@escuela.edu" />
+              </div>
+              <div class="campo">
+                <label>Teléfono * (10 dígitos)</label>
+                <input type="tel" name="phone" placeholder="5512345678" maxlength="10" />
+              </div>
+              <div class="campo">
+                <label>Especialidad *</label>
+                <input type="text" name="specialty" placeholder="Ej. Ingeniería de Software" />
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="active">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-docente" class="btn-primary">Agregar Docente</button>
+              <button type="button" id="btn-cancelar-docente" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-docentes">
+              <thead>
+                <tr>
+                  <th>No. Empleado</th>
+                  <th>Nombre completo</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Especialidad</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="7" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-materias" class="tab-panel">
+          <h2 class="seccion-titulo">Gestión de Materias</h2>
+          <form id="form-materia" class="form-crud">
+            <h3 class="form-titulo">Nueva Materia</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>Código *</label>
+                <input type="text" name="code" placeholder="Ej. MAT101" />
+              </div>
+              <div class="campo">
+                <label>Nombre *</label>
+                <input type="text" name="name" placeholder="Ej. Matemáticas I" />
+              </div>
+              <div class="campo">
+                <label>Créditos *</label>
+                <input type="number" name="credits" placeholder="Ej. 6" min="1" max="20" />
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="active">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-materia" class="btn-primary">Agregar Materia</button>
+              <button type="button" id="btn-cancelar-materia" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-materias">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Nombre</th>
+                  <th>Créditos</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-grupos" class="tab-panel">
+          <h2 class="seccion-titulo">Gestión de Grupos</h2>
+          <form id="form-grupo" class="form-crud">
+            <h3 class="form-titulo">Nuevo Grupo</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>Nombre *</label>
+                <input type="text" name="name" placeholder="Ej. Grupo A" />
+              </div>
+              <div class="campo">
+                <label>Materia *</label>
+                <select name="materiaId">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Docente *</label>
+                <select name="docenteId">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="active">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="true">Activo</option>
+                  <option value="false">Inactivo</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-grupo" class="btn-primary">Agregar Grupo</button>
+              <button type="button" id="btn-cancelar-grupo" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-grupos">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Materia</th>
+                  <th>Docente</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-inscripciones" class="tab-panel">
+          <h2 class="seccion-titulo">Módulo de Inscripciones</h2>
+          <form id="form-inscripcion" class="form-crud">
+            <h3 class="form-titulo">Nueva Inscripción</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>Alumno *</label>
+                <select name="alumnoId">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Grupo *</label>
+                <select name="grupoId">
+                  <option value="">-- Seleccionar --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Fecha de inscripción *</label>
+                <input type="date" name="enrollmentDate" />
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="status">
+                  <option value="">-- Seleccionar --</option>
+                  <option value="activa">Activa</option>
+                  <option value="pendiente">Pendiente</option>
+                  <option value="cancelada">Cancelada</option>
+                  <option value="completada">Completada</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-inscripcion" class="btn-primary">Inscribir Alumno</button>
+              <button type="button" id="btn-cancelar-inscripcion" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-inscripciones">
+              <thead>
+                <tr>
+                  <th>Alumno</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./js/main.js"></script>
+</body>
+</html>
