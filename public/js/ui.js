@@ -84,3 +84,98 @@ export function llenarFormulario(formId, datos) {
 export function limpiarFormulario(formId) {
   document.getElementById(formId)?.reset();
 }
+
+export function renderizarTablaMaterias(materias, onEditar, onEliminar) {
+  const tbody = document.querySelector('#tabla-materias tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (materias.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="sin-datos">No hay materias registradas</td></tr>';
+    return;
+  }
+  materias.forEach(m => {
+    const tr = document.createElement('tr');
+    const activeLabel = m.active ? 'Activo' : 'Inactivo';
+    const activeClass = m.active ? 'active' : 'inactive';
+    tr.innerHTML = `
+      <td>${m.code}</td>
+      <td>${m.name}</td>
+      <td>${m.credits}</td>
+      <td><span class="badge badge-${activeClass}">${activeLabel}</span></td>
+      <td class="acciones">
+        <button class="btn-editar" data-id="${m.id}">Editar</button>
+        <button class="btn-eliminar" data-id="${m.id}">Eliminar</button>
+      </td>
+    `;
+    tr.querySelector('.btn-editar').addEventListener('click', () => onEditar(m));
+    tr.querySelector('.btn-eliminar').addEventListener('click', () => onEliminar(m.id));
+    tbody.appendChild(tr);
+  });
+}
+
+export function renderizarTablaGrupos(grupos, materias, docentes, onEditar, onEliminar) {
+  const tbody = document.querySelector('#tabla-grupos tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (grupos.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="sin-datos">No hay grupos registrados</td></tr>';
+    return;
+  }
+  grupos.forEach(g => {
+    const tr = document.createElement('tr');
+    const materia = materias.find(m => m.id === g.materiaId);
+    const materiaNombre = materia ? `${materia.code} – ${materia.name}` : '—';
+    const docente = docentes.find(d => d.id === g.docenteId);
+    const docenteNombre = docente ? docente.fullName : '—';
+    const activeLabel = g.active ? 'Activo' : 'Inactivo';
+    const activeClass = g.active ? 'active' : 'inactive';
+    tr.innerHTML = `
+      <td>${g.name}</td>
+      <td>${materiaNombre}</td>
+      <td>${docenteNombre}</td>
+      <td><span class="badge badge-${activeClass}">${activeLabel}</span></td>
+      <td class="acciones">
+        <button class="btn-editar" data-id="${g.id}">Editar</button>
+        <button class="btn-eliminar" data-id="${g.id}">Eliminar</button>
+      </td>
+    `;
+    tr.querySelector('.btn-editar').addEventListener('click', () => onEditar(g));
+    tr.querySelector('.btn-eliminar').addEventListener('click', () => onEliminar(g.id));
+    tbody.appendChild(tr);
+  });
+}
+
+const STATUS_INSCRIPCION = {
+  activa:     { label: 'Activa',     clase: 'active'    },
+  pendiente:  { label: 'Pendiente',  clase: 'inactive'  },
+  cancelada:  { label: 'Cancelada',  clase: 'dropped'   },
+  completada: { label: 'Completada', clase: 'graduated' }
+};
+
+export function renderizarTablaInscripciones(inscripciones, alumnos, grupos, materias, onEditar, onEliminar) {
+  const tbody = document.querySelector('#tabla-inscripciones tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (inscripciones.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" class="sin-datos">No hay inscripciones registradas</td></tr>';
+    return;
+  }
+  inscripciones.forEach(i => {
+    const tr = document.createElement('tr');
+    const alumno  = alumnos.find(a => a.id === i.alumnoId);
+    const alumnoNombre  = alumno  ? alumno.fullName : '—';
+    const statusInfo = STATUS_INSCRIPCION[i.status] ?? { label: i.status, clase: 'inactive' };
+    tr.innerHTML = `
+      <td>${alumnoNombre}</td>
+      <td>${i.enrollmentDate ?? '—'}</td>
+      <td><span class="badge badge-${statusInfo.clase}">${statusInfo.label}</span></td>
+      <td class="acciones">
+        <button class="btn-editar" data-id="${i.id}">Editar</button>
+        <button class="btn-eliminar" data-id="${i.id}">Eliminar</button>
+      </td>
+    `;
+    tr.querySelector('.btn-editar').addEventListener('click', () => onEditar(i));
+    tr.querySelector('.btn-eliminar').addEventListener('click', () => onEliminar(i.id));
+    tbody.appendChild(tr);
+  });
+}
