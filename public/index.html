@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SchoolAdmin Pro</title>
+    <link rel="stylesheet" href="./assets/styles.css">
+</head>
+<body class="dashboard-body">
+
+    <aside class="sidebar">
+        <h2>SchoolAdmin</h2>
+        <nav>
+            <a href="#" class="active">Inicio</a>
+            <a href="#" id="nav-crear-usuarios">Registrar Usuarios</a>
+            
+            <a href="#">Materias</a>
+            <a href="#">Grupos</a>
+        </nav>
+        <button id="logout-btn" class="logout-btn">Cerrar Sesión</button>
+    </aside>
+
+    <main class="main-content">
+        <header class="navbar">
+            <h3>Panel de Administración</h3>
+            <div class="user-info">
+                <span>Usuario: </span>
+                <span id="user-email">Cargando...</span>
+            </div>
+        </header>
+
+        <section class="content-area" id="content-area">
+            <h1>Bienvenido al Sistema</h1>
+            <p>Selecciona una opción del menú lateral para comenzar a administrar.</p>
+        </section>
+    </main>
+
+    <script type="module" src="./js/ui.js"></script>
+
+</body>
+</html>
