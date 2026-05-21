@@ -1,9 +1,6 @@
 import { auth } from './firebase.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-// =========================================
-// LOGICA DE AUTENTICACION Y UI GLOBAL
-// =========================================
 const userEmailSpan = document.getElementById('useremail');
 const logoutBtn = document.getElementById('logoutbtn');
 

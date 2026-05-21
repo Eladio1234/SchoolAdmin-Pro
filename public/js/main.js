@@ -451,10 +451,22 @@ function poblarSelectAlumnos(alumnos) {
 
 function poblarSelectGrupos(grupos, materias) {
   gruposInscripcion = grupos;
-  const grupoInput = document.querySelector('#form-inscripcion [name="grupoId"]');
-  if (!grupoInput) return;
-  const primerGrupoActivo = grupos.filter(g => g.active)[0];
-  grupoInput.value = primerGrupoActivo ? primerGrupoActivo.id : '';
+  const select = document.querySelector('#form-inscripcion [name="grupoId"]');
+  if (!select) return;
+  
+  const valorActual = select.value;
+  select.innerHTML = '<option value="">-- Seleccionar --</option>';
+  
+  grupos.filter(g => g.active).forEach(g => {
+    const materia = materias.find(m => m.id === g.materiaId);
+    const materiaNombre = materia ? materia.name : 'Sin materia';
+    const opt = document.createElement('option');
+    opt.value = g.id;
+    opt.textContent = `${g.name} - ${materiaNombre}`; 
+    select.appendChild(opt);
+  });
+  
+  if (valorActual) select.value = valorActual;
 }
 
 document.getElementById('form-inscripcion')?.addEventListener('submit', async e => {
