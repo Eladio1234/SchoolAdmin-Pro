@@ -25,14 +25,14 @@
       </div>
       <button type="submit" class="btn-primary btn-block">Entrar</button>
     </form>
-
-    <p class="auth-link">¿No tienes cuenta? <a href="register.html">Regístrate aquí</a></p>
   </div>
 
   <script type="module">
-    import { iniciarSesion, observarAuth } from './js/auth.js';
+    // Aquí importamos loginUser, respetando el auth.js que dejaste
+    import { loginUser, observarAuth } from './js/auth.js';
     import { mostrarNotificacion } from './js/ui.js';
 
+    // Semáforo: Si ya hay sesión, mandarlo directo al dashboard
     observarAuth(usuario => {
       if (usuario) window.location.href = 'dashboard.html';
     });
@@ -41,13 +41,16 @@
       e.preventDefault();
       const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+      
       try {
-        await iniciarSesion(email, password);
+        // Usamos la función de tu compañero
+        await loginUser(email, password);
         window.location.href = 'dashboard.html';
       } catch (err) {
-        const msg = err.code === 'auth/invalid-credential'
+        // Mostramos la notificación elegante si falla
+        const msg = (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password')
           ? 'Correo o contraseña incorrectos'
-          : err.message;
+          : 'Error al iniciar sesión';
         mostrarNotificacion(msg, 'error');
       }
     });

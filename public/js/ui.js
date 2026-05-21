@@ -1,3 +1,37 @@
+import { auth } from './firebase.js';
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+// =========================================
+// LOGICA DE AUTENTICACION Y UI GLOBAL
+// =========================================
+const userEmailSpan = document.getElementById('useremail');
+const logoutBtn = document.getElementById('logoutbtn');
+
+// Mostrar email del usuario activo si el elemento existe en el DOM
+if (userEmailSpan) {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            userEmailSpan.innerText = user.email;
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+}
+
+// Lógica para cerrar sesión si el botón existe
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        }
+    });
+}
+
+// =========================================
+// UTILIDADES Y NOTIFICACIONES
+// =========================================
 export function mostrarNotificacion(mensaje, tipo = 'success') {
   const notif = document.getElementById('notificacion');
   if (!notif) return;
@@ -7,6 +41,24 @@ export function mostrarNotificacion(mensaje, tipo = 'success') {
   setTimeout(() => { notif.style.display = 'none'; }, 3500);
 }
 
+export function llenarFormulario(formId, datos) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+  Object.keys(datos).forEach(key => {
+    const el = form.querySelector(`[name="${key}"]`);
+    if (!el) return;
+    // los booleanos de Firestore deben convertirse a string para el <select>
+    el.value = (typeof datos[key] === 'boolean') ? String(datos[key]) : (datos[key] ?? '');
+  });
+}
+
+export function limpiarFormulario(formId) {
+  document.getElementById(formId)?.reset();
+}
+
+// =========================================
+// RENDERIZADO DE TABLAS (CRUDs)
+// =========================================
 const STATUS_LABELS = {
   active: 'Activo', inactive: 'Inactivo', graduated: 'Graduado', dropped: 'Baja'
 };
@@ -68,21 +120,6 @@ export function renderizarTablaDocentes(docentes, onEditar, onEliminar) {
     tr.querySelector('.btn-eliminar').addEventListener('click', () => onEliminar(d.id));
     tbody.appendChild(tr);
   });
-}
-
-export function llenarFormulario(formId, datos) {
-  const form = document.getElementById(formId);
-  if (!form) return;
-  Object.keys(datos).forEach(key => {
-    const el = form.querySelector(`[name="${key}"]`);
-    if (!el) return;
-    // los booleanos de Firestore deben convertirse a string para el <select>
-    el.value = (typeof datos[key] === 'boolean') ? String(datos[key]) : (datos[key] ?? '');
-  });
-}
-
-export function limpiarFormulario(formId) {
-  document.getElementById(formId)?.reset();
 }
 
 export function renderizarTablaMaterias(materias, onEditar, onEliminar) {
