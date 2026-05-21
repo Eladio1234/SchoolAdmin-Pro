@@ -10,9 +10,9 @@
 
   <div class="auth-card">
     <h1 class="auth-logo">SchoolAdmin <span>Pro</span></h1>
-    <h2>Crear Cuenta</h2>
+    <h2>Crear Cuenta Admin</h2>
 
-    <div id="notificacion" class="notificacion" style="display:none;"></div>
+    <div id="notificacion" class="notificacion oculto"></div>
 
     <form id="form-register">
       <div class="campo">
@@ -34,11 +34,11 @@
   </div>
 
   <script type="module">
-    import { registrar, observarAuth } from './js/auth.js';
+    import { registerUser, observeAuth } from './js/auth.js';
     import { mostrarNotificacion } from './js/ui.js';
 
-    observarAuth(usuario => {
-      if (usuario) window.location.href = 'dashboard.html';
+    observeAuth(usuario => {
+      if (usuario) window.location.href = 'dashboard-admin.html';
     });
 
     document.getElementById('form-register').addEventListener('submit', async e => {
@@ -52,8 +52,8 @@
         return;
       }
       try {
-        await registrar(email, password);
-        window.location.href = 'dashboard.html';
+        await registerUser(email, password);
+        window.location.href = 'dashboard-admin.html';
       } catch (err) {
         const msg = err.code === 'auth/email-already-in-use'
           ? 'Este correo ya está registrado'

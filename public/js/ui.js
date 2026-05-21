@@ -29,16 +29,17 @@ if (logoutBtn) {
     });
 }
 
-// =========================================
-// UTILIDADES Y NOTIFICACIONES
-// =========================================
 export function mostrarNotificacion(mensaje, tipo = 'success') {
   const notif = document.getElementById('notificacion');
   if (!notif) return;
+  
   notif.textContent = mensaje;
   notif.className = `notificacion ${tipo}`;
-  notif.style.display = 'block';
-  setTimeout(() => { notif.style.display = 'none'; }, 3500);
+  notif.classList.remove('oculto');
+  
+  setTimeout(() => { 
+    notif.classList.add('oculto'); 
+  }, 3500);
 }
 
 export function llenarFormulario(formId, datos) {
@@ -47,7 +48,6 @@ export function llenarFormulario(formId, datos) {
   Object.keys(datos).forEach(key => {
     const el = form.querySelector(`[name="${key}"]`);
     if (!el) return;
-    // los booleanos de Firestore deben convertirse a string para el <select>
     el.value = (typeof datos[key] === 'boolean') ? String(datos[key]) : (datos[key] ?? '');
   });
 }
@@ -56,9 +56,6 @@ export function limpiarFormulario(formId) {
   document.getElementById(formId)?.reset();
 }
 
-// =========================================
-// RENDERIZADO DE TABLAS (CRUDs)
-// =========================================
 const STATUS_LABELS = {
   active: 'Activo', inactive: 'Inactivo', graduated: 'Graduado', dropped: 'Baja'
 };

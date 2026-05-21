@@ -287,7 +287,11 @@ a:hover { text-decoration: underline; }
     background-color: #b91c1c; 
 }
 
-.btn-block { width: 100%; padding: 0.7rem; font-size: 1rem; }
+.btn-block { 
+  width: 100%; 
+  padding: 0.7rem; 
+  font-size: 1rem; 
+}
 
 /* TABLE */
 .tabla-wrapper {
@@ -315,14 +319,34 @@ thead th {
   white-space: nowrap;
 }
 
-tbody tr { border-bottom: 1px solid var(--gray-100); }
-tbody tr:last-child { border-bottom: none; }
-tbody tr:hover { background: var(--gray-50); }
-tbody td { padding: 0.75rem 1rem; vertical-align: middle; }
+tbody tr { 
+  border-bottom: 1px solid var(--gray-100); 
+}
 
-.sin-datos { text-align: center; color: var(--gray-400); padding: 2rem; font-style: italic; }
+tbody tr:last-child { 
+  border-bottom: none; 
+}
 
-.acciones { display: flex; gap: 0.5rem; }
+tbody tr:hover { 
+  background: var(--gray-50); 
+}
+
+tbody td { 
+  padding: 0.75rem 1rem; 
+  vertical-align: middle; 
+}
+
+.sin-datos { 
+  text-align: center; 
+  color: var(--gray-400); 
+  padding: 2rem; 
+  font-style: italic; 
+}
+
+.acciones { 
+  display: flex; 
+  gap: 0.5rem; 
+}
 
 /* BADGES DE ESTADO */
 .badge {
@@ -334,10 +358,26 @@ tbody td { padding: 0.75rem 1rem; vertical-align: middle; }
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
-.badge-active    { background: var(--success-lt); color: var(--success); }
-.badge-inactive  { background: var(--gray-200);   color: var(--gray-600); }
-.badge-graduated { background: var(--primary-lt); color: var(--primary); }
-.badge-dropped   { background: var(--danger-lt);  color: var(--danger); }
+
+.badge-active    { 
+  background: var(--success-lt); 
+  color: var(--success); 
+}
+
+.badge-inactive  { 
+  background: var(--gray-200);   
+  color: var(--gray-600); 
+}
+
+.badge-graduated { 
+  background: var(--primary-lt); 
+  color: var(--primary); 
+}
+
+.badge-dropped   { 
+  background: var(--danger-lt);  
+  color: var(--danger); 
+}
 
 .btn-editar {
   background: var(--primary-lt);
@@ -350,7 +390,9 @@ tbody td { padding: 0.75rem 1rem; vertical-align: middle; }
   cursor: pointer;
   transition: background .15s;
 }
-.btn-editar:hover { background: #bfdbfe; }
+.btn-editar:hover { 
+  background: #bfdbfe; 
+}
 
 .btn-eliminar {
   background: var(--danger-lt);
@@ -363,7 +405,10 @@ tbody td { padding: 0.75rem 1rem; vertical-align: middle; }
   cursor: pointer;
   transition: background .15s;
 }
-.btn-eliminar:hover { background: #fecaca; }
+
+.btn-eliminar:hover { 
+  background: #fecaca; 
+}
 
 /* NOTIFICACION */
 .notificacion {
@@ -378,15 +423,76 @@ tbody td { padding: 0.75rem 1rem; vertical-align: middle; }
   box-shadow: var(--shadow-md);
   max-width: 360px;
 }
-.notificacion.success { background: var(--success-lt); color: var(--success); border-left: 4px solid var(--success); }
-.notificacion.error   { background: var(--danger-lt);  color: var(--danger);  border-left: 4px solid var(--danger); }
-.notificacion.warning { background: var(--warning-lt); color: var(--warning); border-left: 4px solid var(--warning); }
+
+.notificacion.success { 
+  background: var(--success-lt); 
+  color: var(--success); 
+  border-left: 4px solid var(--success); 
+}
+
+.notificacion.error   { 
+  background: var(--danger-lt);  
+  color: var(--danger);  
+  border-left: 4px solid var(--danger); 
+}
+
+.notificacion.warning { 
+  background: var(--warning-lt); 
+  color: var(--warning); 
+  border-left: 4px solid var(--warning); 
+}
+
+
+.text-center { 
+  text-align: center; 
+}
+
+.oculto { 
+  display: none; 
+}
+
+/* Tipografía Landing */
+.landing-title {
+  margin-top: 10px; 
+  color: var(--gray-600);
+}
+
+.landing-subtitle {
+  margin-bottom: 2rem; 
+  color: var(--gray-400); 
+  font-size: 0.9rem;
+}
+
+/* Modificador para botones como enlaces */
+a.btn-block {
+  display: block;
+  text-align: center;
+}
+
+.mb-3 {
+  margin-bottom: 1rem;
+}
 
 /* RESPONSIVE */
 @media (max-width: 640px) {
-  .header { padding: 0.75rem 1rem; }
-  .form-grid { grid-template-columns: 1fr; }
-  .usuario-email { display: none; }
-  .sidebar { width: 100%; height: auto; }
-  .dashboard-body { flex-direction: column; overflow: auto; }
+  .header { 
+    padding: 0.75rem 1rem; 
+  }
+
+  .form-grid { 
+    grid-template-columns: 1fr; 
+  }
+
+  .usuario-email { 
+    display: none; 
+  }
+
+  .sidebar { 
+    width: 100%; height: auto; 
+  }
+
+  .dashboard-body { 
+    flex-direction: column; 
+    overflow: auto; 
+  }
 }

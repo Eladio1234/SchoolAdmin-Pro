@@ -1,4 +1,4 @@
-import { observarAuth, cerrarSesion } from './auth.js';
+import { observeAuth, logoutUser } from './auth.js';
 import {
   agregarAlumno, obtenerAlumnos, actualizarAlumno, eliminarAlumno,
   agregarDocente, obtenerDocentes, actualizarDocente, eliminarDocente,
@@ -27,8 +27,7 @@ let editandoInscripcionId = null;
 let gruposInscripcion = [];
 let usuarioActual = null;
 
-// AUTH GUARD
-observarAuth(usuario => {
+observeAuth(usuario => {
   if (!usuario) {
     window.location.href = 'login.html';
     return;
@@ -43,7 +42,6 @@ observarAuth(usuario => {
   cargarInscripciones();
 });
 
-// TABS
 document.querySelectorAll('.tab-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('activo'));
@@ -53,13 +51,20 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
   });
 });
 
-// LOGOUT
 document.getElementById('btn-logout')?.addEventListener('click', async () => {
-  await cerrarSesion();
+  await logoutUser();
   window.location.href = 'login.html';
 });
 
-// ALUMNOS
+function leerForm(formId, campos) {
+  const form = document.getElementById(formId);
+  const datos = {};
+  campos.forEach(campo => {
+    const el = form.querySelector(`[name="${campo}"]`);
+    if (el) datos[campo] = el.value.trim();
+  });
+  return datos;
+}
 
 async function cargarAlumnos() {
   try {
@@ -96,7 +101,7 @@ function editarAlumno(alumno) {
   editandoAlumnoId = alumno.id;
   llenarFormulario('form-alumno', alumno);
   document.getElementById('submit-alumno').textContent = 'Actualizar Alumno';
-  document.getElementById('btn-cancelar-alumno').style.display = 'inline-block';
+  document.getElementById('btn-cancelar-alumno').classList.remove('oculto');
   document.getElementById('form-alumno').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -119,7 +124,7 @@ document.getElementById('btn-cancelar-alumno')?.addEventListener('click', () => 
 function resetFormAlumno() {
   editandoAlumnoId = null;
   document.getElementById('submit-alumno').textContent = 'Agregar Alumno';
-  document.getElementById('btn-cancelar-alumno').style.display = 'none';
+  document.getElementById('btn-cancelar-alumno').classList.add('oculto');
 }
 
 function validarAlumno(datos) {
@@ -145,8 +150,6 @@ function validarAlumno(datos) {
   }
   return true;
 }
-
-// DOCENTES
 
 async function cargarDocentes() {
   try {
@@ -183,7 +186,7 @@ function editarDocente(docente) {
   editandoDocenteId = docente.id;
   llenarFormulario('form-docente', docente);
   document.getElementById('submit-docente').textContent = 'Actualizar Docente';
-  document.getElementById('btn-cancelar-docente').style.display = 'inline-block';
+  document.getElementById('btn-cancelar-docente').classList.remove('oculto');
   document.getElementById('form-docente').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -206,7 +209,7 @@ document.getElementById('btn-cancelar-docente')?.addEventListener('click', () =>
 function resetFormDocente() {
   editandoDocenteId = null;
   document.getElementById('submit-docente').textContent = 'Agregar Docente';
-  document.getElementById('btn-cancelar-docente').style.display = 'none';
+  document.getElementById('btn-cancelar-docente').classList.add('oculto');
 }
 
 function validarDocente(datos) {
@@ -232,19 +235,6 @@ function validarDocente(datos) {
   }
   return true;
 }
-
-// UTILIDAD
-function leerForm(formId, campos) {
-  const form = document.getElementById(formId);
-  const datos = {};
-  campos.forEach(campo => {
-    const el = form.querySelector(`[name="${campo}"]`);
-    if (el) datos[campo] = el.value.trim();
-  });
-  return datos;
-}
-
-// MATERIAS
 
 async function cargarMaterias() {
   try {
@@ -282,7 +272,7 @@ function editarMateria(materia) {
   editandoMateriaId = materia.id;
   llenarFormulario('form-materia', materia);
   document.getElementById('submit-materia').textContent = 'Actualizar Materia';
-  document.getElementById('btn-cancelar-materia').style.display = 'inline-block';
+  document.getElementById('btn-cancelar-materia').classList.remove('oculto');
   document.getElementById('form-materia').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -305,7 +295,7 @@ document.getElementById('btn-cancelar-materia')?.addEventListener('click', () =>
 function resetFormMateria() {
   editandoMateriaId = null;
   document.getElementById('submit-materia').textContent = 'Agregar Materia';
-  document.getElementById('btn-cancelar-materia').style.display = 'none';
+  document.getElementById('btn-cancelar-materia').classList.add('oculto');
 }
 
 function validarMateria(datos) {
@@ -323,8 +313,6 @@ function validarMateria(datos) {
   }
   return true;
 }
-
-// GRUPOS
 
 async function cargarGrupos() {
   try {
@@ -393,7 +381,7 @@ function editarGrupo(grupo) {
   editandoGrupoId = grupo.id;
   llenarFormulario('form-grupo', grupo);
   document.getElementById('submit-grupo').textContent = 'Actualizar Grupo';
-  document.getElementById('btn-cancelar-grupo').style.display = 'inline-block';
+  document.getElementById('btn-cancelar-grupo').classList.remove('oculto');
   document.getElementById('form-grupo').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -416,7 +404,7 @@ document.getElementById('btn-cancelar-grupo')?.addEventListener('click', () => {
 function resetFormGrupo() {
   editandoGrupoId = null;
   document.getElementById('submit-grupo').textContent = 'Agregar Grupo';
-  document.getElementById('btn-cancelar-grupo').style.display = 'none';
+  document.getElementById('btn-cancelar-grupo').classList.add('oculto');
 }
 
 function validarGrupo(datos) {
@@ -430,8 +418,6 @@ function validarGrupo(datos) {
   }
   return true;
 }
-
-// INSCRIPCIONES
 
 async function cargarInscripciones() {
   try {
@@ -449,7 +435,6 @@ async function cargarInscripciones() {
   }
 }
 
-// Solo muestra alumnos con status 'active'
 function poblarSelectAlumnos(alumnos) {
   const select = document.querySelector('#form-inscripcion [name="alumnoId"]');
   if (!select) return;
@@ -482,7 +467,6 @@ document.getElementById('form-inscripcion')?.addEventListener('submit', async e 
 
   try {
     if (editandoInscripcionId) {
-      // Al editar no se revalidan duplicados: la inscripción ya existe
       await actualizarInscripcion(editandoInscripcionId, {
         alumnoId: datos.alumnoId,
         grupoId: datos.grupoId,
@@ -493,7 +477,6 @@ document.getElementById('form-inscripcion')?.addEventListener('submit', async e 
       mostrarNotificacion('Inscripción actualizada correctamente');
       resetFormInscripcion();
     } else {
-      // Al crear: primero validar duplicados en Firestore
       const resultado = await validarInscripcion(datos.alumnoId, datos.grupoId, materiaId);
       if (!resultado.valida) {
         mostrarNotificacion(resultado.mensaje, 'error');
@@ -521,7 +504,7 @@ function editarInscripcion(inscripcion) {
   editandoInscripcionId = inscripcion.id;
   llenarFormulario('form-inscripcion', inscripcion);
   document.getElementById('submit-inscripcion').textContent = 'Actualizar Inscripción';
-  document.getElementById('btn-cancelar-inscripcion').style.display = 'inline-block';
+  document.getElementById('btn-cancelar-inscripcion').classList.remove('oculto');
   document.getElementById('form-inscripcion').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -544,8 +527,8 @@ document.getElementById('btn-cancelar-inscripcion')?.addEventListener('click', (
 function resetFormInscripcion() {
   editandoInscripcionId = null;
   document.getElementById('submit-inscripcion').textContent = 'Inscribir Alumno';
-  document.getElementById('btn-cancelar-inscripcion').style.display = 'none';
-  // Restaurar fecha de hoy como valor por defecto
+  document.getElementById('btn-cancelar-inscripcion').classList.add('oculto');
+  
   const fechaInput = document.querySelector('#form-inscripcion [name="enrollmentDate"]');
   if (fechaInput) fechaInput.value = new Date().toISOString().split('T')[0];
 }
