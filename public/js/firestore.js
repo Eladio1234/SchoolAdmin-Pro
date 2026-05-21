@@ -2,13 +2,13 @@ import { db } from './firebase.js';
 import {
   collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
   query, orderBy, where, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"; // <-- ¡Aquí está la corrección a 10.8.1!
 
 const COL_ALUMNOS = 'alumnos';
 const COL_DOCENTES = 'docentes';
 const COL_MATERIAS = 'materias';
-// ALUMNOS
 
+// ALUMNOS
 export async function agregarAlumno(datos) {
   return await addDoc(collection(db, COL_ALUMNOS), {
     ...datos,
@@ -32,7 +32,6 @@ export async function eliminarAlumno(id) {
 }
 
 // DOCENTES
-
 export async function agregarDocente(datos) {
   return await addDoc(collection(db, COL_DOCENTES), {
     ...datos,
@@ -56,7 +55,6 @@ export async function eliminarDocente(id) {
 }
 
 // MATERIAS
-
 export async function agregarMateria(datos) {
   return await addDoc(collection(db, COL_MATERIAS), {
     ...datos,
@@ -80,7 +78,6 @@ export async function eliminarMateria(id) {
 }
 
 // GRUPOS
-
 const COL_GRUPOS = 'grupos';
 
 export async function agregarGrupo(datos) {
@@ -106,7 +103,6 @@ export async function eliminarGrupo(id) {
 }
 
 // INSCRIPCIONES
-
 const COL_INSCRIPCIONES = 'inscripciones';
 
 export async function agregarInscripcion(datos) {

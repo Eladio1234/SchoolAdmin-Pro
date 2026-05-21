@@ -12,7 +12,7 @@
     <h1 class="auth-logo">SchoolAdmin <span>Pro</span></h1>
     <h2>Iniciar Sesión</h2>
 
-    <div id="notificacion" class="notificacion" style="display:none;"></div>
+    <div id="notificacion" class="notificacion oculto"></div>
 
     <form id="form-login">
       <div class="campo">
@@ -28,13 +28,11 @@
   </div>
 
   <script type="module">
-    // Aquí importamos loginUser, respetando el auth.js que dejaste
-    import { loginUser, observarAuth } from './js/auth.js';
+    import { loginUser, observeAuth } from './js/auth.js';
     import { mostrarNotificacion } from './js/ui.js';
 
-    // Semáforo: Si ya hay sesión, mandarlo directo al dashboard
-    observarAuth(usuario => {
-      if (usuario) window.location.href = 'dashboard.html';
+    observeAuth(usuario => {
+      if (usuario) window.location.href = 'dashboard-admin.html';
     });
 
     document.getElementById('form-login').addEventListener('submit', async e => {
@@ -43,11 +41,9 @@
       const password = document.getElementById('password').value;
       
       try {
-        // Usamos la función de tu compañero
         await loginUser(email, password);
-        window.location.href = 'dashboard.html';
+        window.location.href = 'dashboard-admin.html';
       } catch (err) {
-        // Mostramos la notificación elegante si falla
         const msg = (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password')
           ? 'Correo o contraseña incorrectos'
           : 'Error al iniciar sesión';

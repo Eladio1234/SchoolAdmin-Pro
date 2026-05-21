@@ -1,7 +1,12 @@
 import { auth } from './firebase.js';
-import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { 
+  signInWithEmailAndPassword, 
+  createUserWithEmailAndPassword, 
+  signOut, 
+  onAuthStateChanged 
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
 
-// Función principal para iniciar sesión
+// Iniciar sesión
 export const loginUser = async (email, password) => {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
@@ -11,3 +16,18 @@ export const loginUser = async (email, password) => {
         throw error; 
     }
 };
+
+// Registrar usuario
+export async function registerUser(email, password) {
+  return await createUserWithEmailAndPassword(auth, email, password);
+}
+
+// Cerrar sesión
+export async function logoutUser() {
+  return await signOut(auth);
+}
+
+// Observador de estado de sesión
+export function observeAuth(callback) {
+  return onAuthStateChanged(auth, callback);
+}
