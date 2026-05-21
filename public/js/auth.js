@@ -8,6 +8,6 @@ export const loginUser = async (email, password) => {
         return userCredential.user;
     } catch (error) {
         console.error("Error al iniciar sesión:💁🏻", error.code);
-        throw error; // Lanzamos el error para atraparlo en el HTML
+        throw error; 
     }
 };

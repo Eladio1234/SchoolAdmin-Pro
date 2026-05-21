@@ -1,8 +1,8 @@
 import { loginUser } from './auth.js';
 
-const loginForm = document.getElementById('login-form');
-const errorMsg = document.getElementById('error-msg');
-const loginBtn = document.getElementById('login-btn');
+const loginForm = document.getElementById('loginform');
+const errorMsg = document.getElementById('errormsg');
+const loginBtn = document.getElementById('loginbtn');
 
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
@@ -23,7 +23,7 @@ loginForm.addEventListener('submit', async (e) => {
         if(error.code === 'auth/invalid-credential') {
             errorMsg.innerText = 'Correo o contraseña incorrectos.';
         } else {
-            errorMsg.innerText = 'Ocurrió un error. Intenta de nuevo.';
+            errorMsg.innerText = 'Ocurrió un error, Intentalo de nuevo.';
         }
     } finally {
         loginBtn.innerText = 'Entrar al Sistema';
