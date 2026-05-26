@@ -1,4 +1,5 @@
 import { loginUser } from './auth.js';
+import { obtenerDocentePorEmail, obtenerAlumnoPorEmail } from './firestore.js';
 
 const loginForm = document.getElementById('loginform');
 const errorMsg = document.getElementById('errormsg');
@@ -15,8 +16,17 @@ loginForm.addEventListener('submit', async (e) => {
 
     try {
         const user = await loginUser(email, password);
-        console.log("Login exitoso:", user.email);
-        window.location.href = 'index.html'; 
+        const docente = await obtenerDocentePorEmail(user.email);
+        if (docente) {
+          window.location.href = 'dashboard-profesor.html';
+          return;
+        }
+        const alumno = await obtenerAlumnoPorEmail(user.email);
+        if (alumno) {
+          window.location.href = 'dashboard-alumno.html';
+          return;
+        }
+        window.location.href = 'dashboard-admin.html';
         
     } catch (error) {
         errorMsg.style.display = 'block';

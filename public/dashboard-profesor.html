@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Docente - SchoolAdmin Pro</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="dashboard-page">
+
+  <div class="dashboard-layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-header text-center">
+        <h1 class="auth-logo" style="color: var(--white); margin: 0; font-size: 1.5rem;">SchoolAdmin <span>Pro</span></h1>
+        <p style="color: var(--gray-400); font-size: 0.8rem; margin-top: 5px;">Portal Docente</p>
+      </div>
+      <nav class="sidebar-nav">
+        <span class="tab-btn activo">📚 Mis Grupos</span>
+      </nav>
+    </aside>
+
+    <div class="main-wrapper">
+
+      <header class="top-header">
+        <div class="header-right">
+          <span class="badge badge-graduated">Docente</span>
+          <span id="docente-nombre" style="font-weight: 600; font-size: 0.9rem; color: var(--gray-600);"></span>
+          <span id="docente-email" class="usuario-email"></span>
+          <button id="btn-logout" class="btn-logout">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <div id="notificacion" class="notificacion oculto"></div>
+
+      <main class="content-area">
+
+        <section id="vista-grupos" class="tab-panel activo">
+          <h2 class="seccion-titulo">Mis Grupos</h2>
+          <div class="filtros-bar">
+            <div class="campo">
+              <label>Buscar grupo</label>
+              <input type="text" id="filtro-grupo-nombre" placeholder="Nombre del grupo..." />
+            </div>
+            <div class="campo">
+              <label>Materia</label>
+              <select id="filtro-grupo-materia">
+                <option value="">Todas las materias</option>
+              </select>
+            </div>
+          </div>
+          <div class="tabla-wrapper">
+            <table id="tabla-grupos-prof">
+              <thead>
+                <tr>
+                  <th>Grupo</th>
+                  <th>Materia</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pag-grupos" class="paginacion"></div>
+        </section>
+
+        <section id="vista-alumnos" class="tab-panel">
+          <div class="breadcrumb">
+            <button id="btn-volver" class="btn-secondary">Volver</button>
+            <h2 class="seccion-titulo" id="titulo-grupo"></h2>
+          </div>
+          <div class="filtros-bar">
+            <div class="campo">
+              <label>No. Alumno o Nombre</label>
+              <input type="text" id="filtro-alumno-buscar" placeholder="Buscar por No. Alumno o nombre..." />
+            </div>
+            <div class="campo">
+              <label>Semestre</label>
+              <input type="number" id="filtro-alumno-semestre" placeholder="Semestre..." min="1" max="12" />
+            </div>
+          </div>
+          <div class="tabla-wrapper">
+            <table id="tabla-alumnos-prof">
+              <thead>
+                <tr>
+                  <th>No. Alumno</th>
+                  <th>Nombre</th>
+                  <th>Semestre</th>
+                  <th>Calificacion</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="5" class="sin-datos">Selecciona un grupo</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pag-alumnos" class="paginacion"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./js/profesor.js"></script>
+</body>
+</html>

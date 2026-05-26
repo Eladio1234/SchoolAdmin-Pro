@@ -127,6 +127,91 @@ export async function eliminarInscripcion(id) {
   await deleteDoc(doc(db, COL_INSCRIPCIONES, id));
 }
 
+const COL_USUARIOS = 'usuarios';
+
+export async function agregarRolUsuario(email, role) {
+  return await addDoc(collection(db, COL_USUARIOS), {
+    email,
+    role,
+    createdAt: serverTimestamp()
+  });
+}
+
+export async function obtenerRolPorEmail(email) {
+  const q = query(collection(db, COL_USUARIOS), where('email', '==', email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return snap.docs[0].data().role;
+}
+
+export async function existeNumeroEstudiante(studentNumber, excluirId = null) {
+  const q = query(collection(db, COL_ALUMNOS), where('studentNumber', '==', studentNumber));
+  const snap = await getDocs(q);
+  return snap.docs.some(d => d.id !== excluirId);
+}
+
+export async function existeNumeroEmpleado(employeeNumber, excluirId = null) {
+  const q = query(collection(db, COL_DOCENTES), where('employeeNumber', '==', employeeNumber));
+  const snap = await getDocs(q);
+  return snap.docs.some(d => d.id !== excluirId);
+}
+
+export async function obtenerAlumnoPorEmail(email) {
+  const q = query(collection(db, COL_ALUMNOS), where('email', '==', email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() };
+}
+
+export async function obtenerDocentePorEmail(email) {
+  const q = query(collection(db, COL_DOCENTES), where('email', '==', email));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  return { id: snap.docs[0].id, ...snap.docs[0].data() };
+}
+
+export async function obtenerGruposPorDocente(docenteId) {
+  const q = query(collection(db, COL_GRUPOS), where('docenteId', '==', docenteId));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function obtenerInscripcionesPorGrupo(grupoId) {
+  const q = query(collection(db, COL_INSCRIPCIONES), where('grupoId', '==', grupoId));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+const COL_CALIFICACIONES = 'calificaciones';
+
+export async function obtenerCalificacionesPorGrupo(grupoId) {
+  const q = query(collection(db, COL_CALIFICACIONES), where('grupoId', '==', grupoId));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function guardarCalificacion(alumnoId, grupoId, materiaId, docenteId, calificacion, status = 'activo') {
+  const q = query(
+    collection(db, COL_CALIFICACIONES),
+    where('alumnoId', '==', alumnoId),
+    where('grupoId', '==', grupoId)
+  );
+  const snap = await getDocs(q);
+  if (!snap.empty) {
+    await updateDoc(doc(db, COL_CALIFICACIONES, snap.docs[0].id), {
+      calificacion, status, updatedAt: serverTimestamp()
+    });
+    return snap.docs[0].id;
+  }
+  const ref = await addDoc(collection(db, COL_CALIFICACIONES), {
+    alumnoId, grupoId, materiaId, docenteId,
+    calificacion, status,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+  return ref.id;
+}
+
 export async function validarInscripcion(alumnoId, grupoId, materiaId) {
   const q1 = query(
     collection(db, COL_INSCRIPCIONES),
