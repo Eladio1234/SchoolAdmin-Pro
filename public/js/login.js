@@ -1,42 +1,46 @@
 import { loginUser } from './auth.js';
-import { obtenerDocentePorEmail, obtenerAlumnoPorEmail } from './firestore.js';
+import { obtenerRolPorEmail } from './firestore.js';
+import { mostrarNotificacion } from './ui.js';
 
-const loginForm = document.getElementById('loginform');
-const errorMsg = document.getElementById('errormsg');
+const loginForm = document.getElementById('form-login');
 const loginBtn = document.getElementById('loginbtn');
 
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault(); 
     
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
+    
     loginBtn.innerText = 'Verificando...';
     loginBtn.disabled = true;
-    errorMsg.style.display = 'none';
 
     try {
         const user = await loginUser(email, password);
-        const docente = await obtenerDocentePorEmail(user.email);
-        if (docente) {
-          window.location.href = 'dashboard-profesor.html';
-          return;
+        const rol = await obtenerRolPorEmail(user.email);
+
+        // cada quien a su rol 
+        if (rol === 'profesor' || rol === 'docente') {
+            window.location.href = 'dashboard-profesor.html';
+        } else if (rol === 'alumno') {
+            window.location.href = 'dashboard-alumno.html';
+        } else if (rol === 'admin') {
+            window.location.href = 'dashboard-admin.html';
+        } else {
+            throw new Error('rol-no-encontrado');
         }
-        const alumno = await obtenerAlumnoPorEmail(user.email);
-        if (alumno) {
-          window.location.href = 'dashboard-alumno.html';
-          return;
-        }
-        window.location.href = 'dashboard-admin.html';
         
     } catch (error) {
-        errorMsg.style.display = 'block';
-        if(error.code === 'auth/invalid-credential') {
-            errorMsg.innerText = 'Correo o contraseña incorrectos.';
+        // manejo de errores 
+        if(error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+            mostrarNotificacion('Correo o contraseña incorrectos', 'error');
+        } else if (error.message === 'rol-no-encontrado') {
+            mostrarNotificacion('Usuario sin rol asignado. Contacta al administrador.', 'error');
         } else {
-            errorMsg.innerText = 'Ocurrió un error, Intentalo de nuevo.';
+            mostrarNotificacion('Ocurrió un error. Inténtalo de nuevo.', 'error');
         }
-    } finally {
-        loginBtn.innerText = 'Entrar al Sistema';
+        
+        
+        loginBtn.innerText = 'Entrar';
         loginBtn.disabled = false;
     }
 });

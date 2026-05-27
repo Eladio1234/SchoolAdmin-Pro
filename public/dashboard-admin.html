@@ -23,6 +23,7 @@
         <button class="tab-btn" data-tab="tab-materias">📚 Materias</button>
         <button class="tab-btn" data-tab="tab-grupos">🏫 Grupos</button>
         <button class="tab-btn" data-tab="tab-inscripciones">📝 Inscripciones</button>
+        <button class="tab-btn" data-tab="tab-calificaciones">📋 Calificaciones</button>
       </nav>
     </aside>
 
@@ -116,6 +117,14 @@
               </tbody>
             </table>
           </div>
+
+          <!-- 👇 BOTONES DE PAGINACIÓN DE ALUMNOS AGREGADOS AQUÍ 👇 -->
+          <div class="paginacion-container" style="display: flex; justify-content: space-between; padding: 15px 20px;">
+            <button type="button" id="btn-alumno-ant" class="btn-secondary">Anterior</button>
+            <button type="button" id="btn-alumno-sig" class="btn-secondary">Siguiente</button>
+          </div>
+          <!-- 👆 FIN DE BOTONES 👆 -->
+
         </section>
 
         <section id="tab-docentes" class="tab-panel">
@@ -187,6 +196,11 @@
                 <tr><td colspan="7" class="sin-datos">Cargando...</td></tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="paginacion-container" style="display: flex; justify-content: space-between; padding: 15px 20px;">
+            <button type="button" id="btn-docente-ant" class="btn-secondary">Anterior</button>
+            <button type="button" id="btn-docente-sig" class="btn-secondary">Siguiente</button>
           </div>
         </section>
 
@@ -347,7 +361,68 @@
               </tbody>
             </table>
           </div>
+
         </section>
+          
+
+
+
+        <section id="tab-calificaciones" class="tab-panel">
+          <h2 class="seccion-titulo">Gestión de Calificaciones</h2>
+          <form id="form-calificacion" class="form-crud">
+            <h3 class="form-titulo">Asignar / Editar Calificación</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>Grupo </label>
+                <select name="grupoId" id="select-grupo-calif" required>
+                  <option value="">-- Seleccionar Grupo --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Alumno *</label>
+                <select name="alumnoId" id="select-alumno-calif" required>
+                  <option value="">-- Seleccionar Alumno --</option>
+                </select>
+              </div>
+              <div class="campo">
+                <label>Calificación  (8,8.5,9 ..)</label>
+                <input type="number" name="calificacion" placeholder="Ej. 8.5" min="0" max="10" step="0.5" required />
+              </div>
+              <div class="campo">
+                <label>Estado *</label>
+                <select name="status" required>
+                  <option value="aprobado">Aprobado</option>
+                  <option value="reprobado">Reprobado</option>
+                  <option value="pendiente">Pendiente</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" id="submit-calificacion" class="btn-primary">Guardar Calificación</button>
+              <button type="button" id="btn-cancelar-calificacion" class="btn-secondary oculto">Cancelar</button>
+            </div>
+          </form>
+
+          <div class="tabla-wrapper">
+            <table id="tabla-calificaciones">
+              <thead>
+                <tr>
+                  <th>Grupo</th>
+                  <th>Alumno</th>
+                  <th>Materia</th>
+                  <th>Calificación</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="6" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+
 
       </main>
     </div>

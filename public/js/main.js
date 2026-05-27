@@ -1,12 +1,15 @@
+import { db } from './firebase.js';
 import { observeAuth, logoutUser, crearUsuarioAuth } from './auth.js';
 import {
-  agregarAlumno, obtenerAlumnos, actualizarAlumno, eliminarAlumno,
+  agregarAlumno, actualizarAlumno, eliminarAlumno, obtenerAlumnos, 
+  obtenerAlumnosPaginaSiguiente, obtenerAlumnosPaginaAnterior, 
   agregarDocente, obtenerDocentes, actualizarDocente, eliminarDocente,
+  obtenerDocentesPaginaSiguiente, obtenerDocentesPaginaAnterior, // Importamos las funciones de paginación para docentes
   agregarMateria, obtenerMaterias, actualizarMateria, eliminarMateria,
   agregarGrupo, obtenerGrupos, actualizarGrupo, eliminarGrupo,
   agregarInscripcion, obtenerInscripciones, actualizarInscripcion, eliminarInscripcion,
   validarInscripcion, existeNumeroEstudiante, existeNumeroEmpleado,
-  agregarRolUsuario
+  agregarRolUsuario, guardarCalificacion, obtenerTodasLasCalificaciones, eliminarCalificacion
 } from './firestore.js';
 import {
   validarEmail, validarTelefono, validarRequerido,
@@ -17,7 +20,8 @@ import {
   llenarFormulario, limpiarFormulario,
   renderizarTablaMaterias,
   renderizarTablaGrupos,
-  renderizarTablaInscripciones
+  renderizarTablaInscripciones,
+  renderizarTablaCalificaciones
 } from './ui.js';
 
 let editandoAlumnoId = null;
@@ -28,6 +32,14 @@ let editandoInscripcionId = null;
 let gruposInscripcion = [];
 let usuarioActual = null;
 
+let primerDocAlumno = null; 
+let ultimoDocAlumno = null;  
+const TAMANO_PAGINA = 10;    // registros por página
+
+// variables para paginación docentes
+let primerDocDocente = null;
+let ultimoDocDocente = null;
+
 observeAuth(usuario => {
   if (!usuario) {
     window.location.href = 'login.html';
@@ -36,11 +48,12 @@ observeAuth(usuario => {
   usuarioActual = usuario;
   const emailEl = document.getElementById('usuario-email');
   if (emailEl) emailEl.textContent = usuario.email;
-  cargarAlumnos();
-  cargarDocentes();
+  cargarAlumnos(); 
+  cargarDocentes(); 
   cargarMaterias();
   cargarGrupos();
   cargarInscripciones();
+  cargarCalificaciones();
 });
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -67,14 +80,99 @@ function leerForm(formId, campos) {
   return datos;
 }
 
+// cargar alumnos de manera paginada 
 async function cargarAlumnos() {
   try {
-    const alumnos = await obtenerAlumnos();
-    renderizarTablaAlumnos(alumnos, editarAlumno, confirmarEliminarAlumno);
+    const resultado = await obtenerAlumnosPaginaSiguiente(TAMANO_PAGINA);
+    
+    primerDocAlumno = resultado.primerDoc;
+    ultimoDocAlumno = resultado.ultimoDoc;
+    
+    renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
   } catch (err) {
     mostrarNotificacion('Error al cargar alumnos: ' + err.message, 'error');
   }
 }
+
+document.getElementById('btn-alumno-ant')?.addEventListener('click', async () => {
+  if (!primerDocAlumno) return; 
+  try {
+    const resultado = await obtenerAlumnosPaginaAnterior(TAMANO_PAGINA, primerDocAlumno);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocAlumno = resultado.primerDoc;
+      ultimoDocAlumno = resultado.ultimoDoc;
+      renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    } else {
+      mostrarNotificacion('Ya estás en la primera página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+document.getElementById('btn-alumno-sig')?.addEventListener('click', async () => {
+  if (!ultimoDocAlumno) return; 
+  try {
+    const resultado = await obtenerAlumnosPaginaSiguiente(TAMANO_PAGINA, ultimoDocAlumno);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocAlumno = resultado.primerDoc;
+      ultimoDocAlumno = resultado.ultimoDoc;
+      renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    } else {
+      mostrarNotificacion('Ya estás en la última página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+// paginación docente
+async function cargarDocentes() {
+  try {
+    const resultado = await obtenerDocentesPaginaSiguiente(TAMANO_PAGINA);
+    
+    primerDocDocente = resultado.primerDoc;
+    ultimoDocDocente = resultado.ultimoDoc;
+    
+    renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+  } catch (err) {
+    mostrarNotificacion('Error al cargar docentes: ' + err.message, 'error');
+  }
+}
+
+// paginación docente
+document.getElementById('btn-docente-ant')?.addEventListener('click', async () => {
+  if (!primerDocDocente) return;
+  try {
+    const resultado = await obtenerDocentesPaginaAnterior(TAMANO_PAGINA, primerDocDocente);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocDocente = resultado.primerDoc;
+      ultimoDocDocente = resultado.ultimoDoc;
+      renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+    } else {
+      mostrarNotificacion('Ya estás en la primera página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+// paginación docente
+document.getElementById('btn-docente-sig')?.addEventListener('click', async () => {
+  if (!ultimoDocDocente) return;
+  try {
+    const resultado = await obtenerDocentesPaginaSiguiente(TAMANO_PAGINA, ultimoDocDocente);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocDocente = resultado.primerDoc;
+      ultimoDocDocente = resultado.ultimoDoc;
+      renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+    } else {
+      mostrarNotificacion('Ya estás en la última página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
 
 document.getElementById('form-alumno')?.addEventListener('submit', async e => {
   e.preventDefault();
@@ -123,7 +221,8 @@ function editarAlumno(alumno) {
   llenarFormulario('form-alumno', alumno);
   document.getElementById('submit-alumno').textContent = 'Actualizar Alumno';
   document.getElementById('btn-cancelar-alumno').classList.remove('oculto');
-  document.getElementById('campo-pass-alumno').classList.add('oculto');
+  document.getElementById('campo-pass-alumno').classList.add('custom-oculto-o-similar'); 
+  document.getElementById('campo-pass-alumno')?.classList.add('oculto');
   document.getElementById('form-alumno').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -132,7 +231,7 @@ async function confirmarEliminarAlumno(id) {
   try {
     await eliminarAlumno(id);
     mostrarNotificacion('Alumno eliminado');
-    await cargarAlumnos();
+    await cargarAlumnos(); 
   } catch (err) {
     mostrarNotificacion('Error al eliminar: ' + err.message, 'error');
   }
@@ -182,15 +281,6 @@ function validarAlumno(datos, esNuevo = false) {
     }
   }
   return true;
-}
-
-async function cargarDocentes() {
-  try {
-    const docentes = await obtenerDocentes();
-    renderizarTablaDocentes(docentes, editarDocente, confirmarEliminarDocente);
-  } catch (err) {
-    mostrarNotificacion('Error al cargar docentes: ' + err.message, 'error');
-  }
 }
 
 document.getElementById('form-docente')?.addEventListener('submit', async e => {
@@ -589,7 +679,7 @@ async function confirmarEliminarInscripcion(id) {
   if (!confirm('¿Seguro que deseas eliminar esta inscripción?')) return;
   try {
     await eliminarInscripcion(id);
-    mostrarNotificacion('Inscripción eliminada');
+    mostrarNotificacion('Inscripción estimada');
     await cargarInscripciones();
   } catch (err) {
     mostrarNotificacion('Error al eliminar: ' + err.message, 'error');
@@ -628,3 +718,112 @@ function validarFormInscripcion(datos, materiaId) {
   }
   return true;
 }
+
+
+
+
+// calificaciones
+let editandoCalificacionId = null;
+
+async function cargarCalificaciones() {
+  try {
+    const [calificaciones, alumnos, grupos, materias] = await Promise.all([
+      obtenerTodasLasCalificaciones(),
+      obtenerAlumnos(),
+      obtenerGrupos(),
+      obtenerMaterias()
+    ]);
+    
+    const selectGrupo = document.getElementById('select-grupo-calif');
+    const selectAlumno = document.getElementById('select-alumno-calif');
+    
+    if (selectGrupo && selectGrupo.options.length <= 1) {
+      grupos.filter(g => g.active).forEach(g => {
+        selectGrupo.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+      });
+    }
+    
+    if (selectAlumno && selectAlumno.options.length <= 1) {
+      alumnos.filter(a => a.status === 'active').forEach(a => {
+        selectAlumno.innerHTML += `<option value="${a.id}">${a.studentNumber} - ${a.fullName}</option>`;
+      });
+    }
+
+    renderizarTablaCalificaciones(calificaciones, alumnos, grupos, materias, editarCalificacion, confirmarEliminarCalificacion);
+  } catch (err) {
+    mostrarNotificacion('Error al cargar calificaciones: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('form-calificacion')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const datos = leerForm('form-calificacion', ['grupoId', 'alumnoId', 'calificacion', 'status']);
+  
+  if (!datos.grupoId || !datos.alumnoId || !datos.calificacion || !datos.status) {
+    mostrarNotificacion('Todos los campos son obligatorios', 'error');
+    return;
+  }
+
+  const califNum = Number(datos.calificacion);
+  
+  if (califNum < 0 || califNum > 10) {
+    mostrarNotificacion('La calificación debe estar entre 0 y 10', 'error');
+    return;
+  }
+  
+  if (califNum % 0.5 !== 0) {
+    mostrarNotificacion('La calificación solo acepta decimales de .0 o .5 (ej. 7, 7.5, 8)', 'error');
+    return;
+  }
+
+  try {
+  
+    const grupos = await obtenerGrupos();
+    const grupoSel = grupos.find(g => g.id === datos.grupoId);
+    
+    await guardarCalificacion(
+      datos.alumnoId, 
+      datos.grupoId, 
+      grupoSel.materiaId, 
+      grupoSel.docenteId, 
+      califNum,
+      Number(datos.calificacion), 
+      datos.status
+    );
+    
+    mostrarNotificacion('Calificación guardada exitosamente');
+    limpiarFormulario('form-calificacion');
+    editandoCalificacionId = null;
+    document.getElementById('submit-calificacion').textContent = 'Guardar Calificación';
+    document.getElementById('btn-cancelar-calificacion').classList.add('oculto');
+    await cargarCalificaciones();
+  } catch (err) {
+    mostrarNotificacion('Error al guardar calificación: ' + err.message, 'error');
+  }
+});
+
+function editarCalificacion(calif) {
+  editandoCalificacionId = calif.id;
+  llenarFormulario('form-calificacion', calif);
+  document.getElementById('submit-calificacion').textContent = 'Actualizar Calificación';
+  document.getElementById('btn-cancelar-calificacion').classList.remove('oculto');
+  document.getElementById('form-calificacion').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function confirmarEliminarCalificacion(id) {
+  if (!confirm('¿Seguro que deseas eliminar esta calificación?')) return;
+  try {
+    await eliminarCalificacion(id);
+    mostrarNotificacion('Calificación eliminada');
+    await cargarCalificaciones();
+  } catch (err) {
+    mostrarNotificacion('Error al eliminar: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('btn-cancelar-calificacion')?.addEventListener('click', () => {
+  limpiarFormulario('form-calificacion');
+  editandoCalificacionId = null;
+  document.getElementById('submit-calificacion').textContent = 'Guardar Calificación';
+  document.getElementById('btn-cancelar-calificacion').classList.add('oculto');
+});
