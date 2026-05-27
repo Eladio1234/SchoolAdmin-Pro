@@ -336,3 +336,15 @@ export async function obtenerDocentesPaginaAnterior(tamanoPagina, primerDocVisib
     totalEnPagina: snap.docs.length
   };
 }
+
+
+// calificacones 
+export async function obtenerTodasLasCalificaciones() {
+  const q = query(collection(db, COL_CALIFICACIONES), orderBy('updatedAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function eliminarCalificacion(id) {
+  await deleteDoc(doc(db, COL_CALIFICACIONES, id));
+}

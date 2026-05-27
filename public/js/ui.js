@@ -242,3 +242,41 @@ export function renderizarTablaInscripciones(inscripciones, alumnos, grupos, mat
     tbody.appendChild(tr);
   });
 }
+
+
+
+
+
+// alificaciones 
+export function renderizarTablaCalificaciones(calificaciones, alumnos, grupos, materias, onEditar, onEliminar) {
+  const tbody = document.querySelector('#tabla-calificaciones tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  if (calificaciones.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="sin-datos">No hay calificaciones registradas</td></tr>';
+    return;
+  }
+  calificaciones.forEach(c => {
+    const tr = document.createElement('tr');
+    const alumno = alumnos.find(a => a.id === c.alumnoId);
+    const grupo = grupos.find(g => g.id === c.grupoId);
+    const materia = materias.find(m => m.id === c.materiaId);
+    
+    let claseBadge = c.status === 'aprobado' ? 'active' : (c.status === 'reprobado' ? 'dropped' : 'inactive');
+    
+    tr.innerHTML = `
+      <td>${grupo ? grupo.name : '—'}</td>
+      <td>${alumno ? alumno.fullName : '—'}</td>
+      <td>${materia ? materia.name : '—'}</td>
+      <td><strong>${c.calificacion}</strong></td>
+      <td><span class="badge badge-${claseBadge}">${c.status.toUpperCase()}</span></td>
+      <td class="acciones">
+        <button class="btn-editar" data-id="${c.id}">Editar</button>
+        <button class="btn-eliminar" data-id="${c.id}">Eliminar</button>
+      </td>
+    `;
+    tr.querySelector('.btn-editar').addEventListener('click', () => onEditar(c));
+    tr.querySelector('.btn-eliminar').addEventListener('click', () => onEliminar(c.id));
+    tbody.appendChild(tr);
+  });
+}

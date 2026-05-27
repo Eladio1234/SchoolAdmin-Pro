@@ -9,7 +9,7 @@ import {
   agregarGrupo, obtenerGrupos, actualizarGrupo, eliminarGrupo,
   agregarInscripcion, obtenerInscripciones, actualizarInscripcion, eliminarInscripcion,
   validarInscripcion, existeNumeroEstudiante, existeNumeroEmpleado,
-  agregarRolUsuario
+  agregarRolUsuario, guardarCalificacion, obtenerTodasLasCalificaciones, eliminarCalificacion
 } from './firestore.js';
 import {
   validarEmail, validarTelefono, validarRequerido,
@@ -20,7 +20,8 @@ import {
   llenarFormulario, limpiarFormulario,
   renderizarTablaMaterias,
   renderizarTablaGrupos,
-  renderizarTablaInscripciones
+  renderizarTablaInscripciones,
+  renderizarTablaCalificaciones
 } from './ui.js';
 
 let editandoAlumnoId = null;
@@ -52,6 +53,7 @@ observeAuth(usuario => {
   cargarMaterias();
   cargarGrupos();
   cargarInscripciones();
+  cargarCalificaciones();
 });
 
 document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -716,3 +718,112 @@ function validarFormInscripcion(datos, materiaId) {
   }
   return true;
 }
+
+
+
+
+// calificaciones
+let editandoCalificacionId = null;
+
+async function cargarCalificaciones() {
+  try {
+    const [calificaciones, alumnos, grupos, materias] = await Promise.all([
+      obtenerTodasLasCalificaciones(),
+      obtenerAlumnos(),
+      obtenerGrupos(),
+      obtenerMaterias()
+    ]);
+    
+    const selectGrupo = document.getElementById('select-grupo-calif');
+    const selectAlumno = document.getElementById('select-alumno-calif');
+    
+    if (selectGrupo && selectGrupo.options.length <= 1) {
+      grupos.filter(g => g.active).forEach(g => {
+        selectGrupo.innerHTML += `<option value="${g.id}">${g.name}</option>`;
+      });
+    }
+    
+    if (selectAlumno && selectAlumno.options.length <= 1) {
+      alumnos.filter(a => a.status === 'active').forEach(a => {
+        selectAlumno.innerHTML += `<option value="${a.id}">${a.studentNumber} - ${a.fullName}</option>`;
+      });
+    }
+
+    renderizarTablaCalificaciones(calificaciones, alumnos, grupos, materias, editarCalificacion, confirmarEliminarCalificacion);
+  } catch (err) {
+    mostrarNotificacion('Error al cargar calificaciones: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('form-calificacion')?.addEventListener('submit', async e => {
+  e.preventDefault();
+  const datos = leerForm('form-calificacion', ['grupoId', 'alumnoId', 'calificacion', 'status']);
+  
+  if (!datos.grupoId || !datos.alumnoId || !datos.calificacion || !datos.status) {
+    mostrarNotificacion('Todos los campos son obligatorios', 'error');
+    return;
+  }
+
+  const califNum = Number(datos.calificacion);
+  
+  if (califNum < 0 || califNum > 10) {
+    mostrarNotificacion('La calificación debe estar entre 0 y 10', 'error');
+    return;
+  }
+  
+  if (califNum % 0.5 !== 0) {
+    mostrarNotificacion('La calificación solo acepta decimales de .0 o .5 (ej. 7, 7.5, 8)', 'error');
+    return;
+  }
+
+  try {
+  
+    const grupos = await obtenerGrupos();
+    const grupoSel = grupos.find(g => g.id === datos.grupoId);
+    
+    await guardarCalificacion(
+      datos.alumnoId, 
+      datos.grupoId, 
+      grupoSel.materiaId, 
+      grupoSel.docenteId, 
+      califNum,
+      Number(datos.calificacion), 
+      datos.status
+    );
+    
+    mostrarNotificacion('Calificación guardada exitosamente');
+    limpiarFormulario('form-calificacion');
+    editandoCalificacionId = null;
+    document.getElementById('submit-calificacion').textContent = 'Guardar Calificación';
+    document.getElementById('btn-cancelar-calificacion').classList.add('oculto');
+    await cargarCalificaciones();
+  } catch (err) {
+    mostrarNotificacion('Error al guardar calificación: ' + err.message, 'error');
+  }
+});
+
+function editarCalificacion(calif) {
+  editandoCalificacionId = calif.id;
+  llenarFormulario('form-calificacion', calif);
+  document.getElementById('submit-calificacion').textContent = 'Actualizar Calificación';
+  document.getElementById('btn-cancelar-calificacion').classList.remove('oculto');
+  document.getElementById('form-calificacion').scrollIntoView({ behavior: 'smooth' });
+}
+
+async function confirmarEliminarCalificacion(id) {
+  if (!confirm('¿Seguro que deseas eliminar esta calificación?')) return;
+  try {
+    await eliminarCalificacion(id);
+    mostrarNotificacion('Calificación eliminada');
+    await cargarCalificaciones();
+  } catch (err) {
+    mostrarNotificacion('Error al eliminar: ' + err.message, 'error');
+  }
+}
+
+document.getElementById('btn-cancelar-calificacion')?.addEventListener('click', () => {
+  limpiarFormulario('form-calificacion');
+  editandoCalificacionId = null;
+  document.getElementById('submit-calificacion').textContent = 'Guardar Calificación';
+  document.getElementById('btn-cancelar-calificacion').classList.add('oculto');
+});
