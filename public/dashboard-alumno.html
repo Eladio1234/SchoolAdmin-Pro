@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Alumno – SchoolAdmin Pro</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="dashboard-page">
+
+  <div class="dashboard-layout">
+
+    <aside class="sidebar">
+      <div class="sidebar-header text-center">
+        <h1 class="auth-logo" style="color: var(--white); margin: 0; font-size: 1.5rem;">SchoolAdmin <span>Pro</span></h1>
+        <p style="color: var(--gray-400); font-size: 0.8rem; margin-top: 5px;">Portal Alumno</p>
+      </div>
+      <nav class="sidebar-nav tabs">
+        <button class="tab-btn activo" data-vista="vista-materias">📚 Mis Materias</button>
+        <button class="tab-btn" data-vista="vista-kardex">📊 Kardex</button>
+        <button class="tab-btn" data-vista="vista-profesores">👨‍🏫 Profesores</button>
+        <button class="tab-btn" data-vista="vista-solicitudes">📋 Solicitudes</button>
+      </nav>
+    </aside>
+
+    <div class="main-wrapper">
+
+      <header class="top-header">
+        <div class="header-right">
+          <span class="badge badge-active">Alumno</span>
+          <span id="alumno-nombre" style="font-weight: 600; font-size: 0.9rem; color: var(--gray-600);"></span>
+          <span id="alumno-email" class="usuario-email"></span>
+          <button id="btn-logout" class="btn-logout">Cerrar sesion</button>
+        </div>
+      </header>
+
+      <div id="notificacion" class="notificacion oculto"></div>
+
+      <main class="content-area">
+
+        <section id="vista-materias" class="tab-panel activo">
+
+          <div id="sv-mis-materias">
+            <h2 class="seccion-titulo">Mis Materias</h2>
+            <div class="filtros-bar">
+              <div class="campo">
+                <label>Buscar materia</label>
+                <input type="text" id="filtro-materia-nombre" placeholder="Nombre de la materia..." />
+              </div>
+              <div class="campo">
+                <label>Estado</label>
+                <select id="filtro-materia-status">
+                  <option value="">Todos</option>
+                  <option value="activa">Activa</option>
+                  <option value="cancelada">Cancelada</option>
+                </select>
+              </div>
+              <div class="campo" style="display:flex; align-items:flex-end;">
+                <button id="btn-ir-inscribir" class="btn-primary">+ Materias Disponibles</button>
+              </div>
+            </div>
+            <div class="tabla-wrapper">
+              <table id="tabla-mis-materias">
+                <thead>
+                  <tr>
+                    <th>Materia</th>
+                    <th>Código</th>
+                    <th>Créditos</th>
+                    <th>Grupo</th>
+                    <th>Profesor</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="7" class="sin-datos">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div id="pag-mis-materias" class="paginacion"></div>
+          </div>
+
+          <div id="sv-inscribir" style="display:none;">
+            <div class="breadcrumb">
+              <button id="btn-volver-materias" class="btn-secondary">Volver</button>
+              <h2 class="seccion-titulo">Grupos Disponibles</h2>
+            </div>
+            <p style="font-size:0.85rem; color:var(--gray-600); margin-bottom:1rem;">
+              Solo se muestran materias en las que no estás inscrito.
+            </p>
+            <div class="filtros-bar">
+              <div class="campo">
+                <label>Buscar materia o grupo</label>
+                <input type="text" id="filtro-disp-buscar" placeholder="Nombre..." />
+              </div>
+            </div>
+            <div class="tabla-wrapper">
+              <table id="tabla-grupos-disponibles">
+                <thead>
+                  <tr>
+                    <th style="width:3rem; text-align:center;">
+                      <input type="checkbox" id="check-todos" title="Seleccionar todo" />
+                    </th>
+                    <th>Materia</th>
+                    <th>Código</th>
+                    <th>Créditos</th>
+                    <th>Grupo</th>
+                    <th>Profesor</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" class="sin-datos">Cargando...</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="filtros-bar" style="justify-content:space-between; align-items:center; margin-top:1rem; gap:1rem;">
+              <span id="conteo-seleccion" style="font-size:0.95rem; color:var(--gray-700);">0 seleccionada(s)</span>
+              <button id="btn-inscribir-seleccion" class="btn-primary" disabled>Inscribirme en seleccionadas</button>
+            </div>
+            <div id="pag-grupos-disp" class="paginacion" style="margin-top:1rem;"></div>
+          </div>
+
+        </section>
+
+        <section id="vista-kardex" class="tab-panel">
+          <h2 class="seccion-titulo">Kardex</h2>
+          <div class="filtros-bar">
+            <div class="campo">
+              <label>Semestre</label>
+              <select id="filtro-kardex-semestre">
+                <option value="">Todos los semestres</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Estado</label>
+              <select id="filtro-kardex-status">
+                <option value="">Todos</option>
+                <option value="activa">Activa</option>
+                <option value="cancelada">Cancelada</option>
+              </select>
+            </div>
+            <div class="campo" style="display:flex; align-items:flex-end;">
+              <span id="kardex-resumen" style="font-size:0.85rem; color:var(--gray-600); padding-bottom:0.4rem;"></span>
+            </div>
+          </div>
+          <div class="tabla-wrapper">
+            <table id="tabla-kardex">
+              <thead>
+                <tr>
+                  <th>Materia</th>
+                  <th>Código</th>
+                  <th>Créditos</th>
+                  <th>Grupo</th>
+                  <th>Profesor</th>
+                  <th>Semestre</th>
+                  <th>Calificación</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="8" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pag-kardex" class="paginacion"></div>
+        </section>
+
+        <section id="vista-profesores" class="tab-panel">
+          <h2 class="seccion-titulo">Profesores</h2>
+          <div class="filtros-bar">
+            <div class="campo">
+              <label>Buscar profesor</label>
+              <input type="text" id="filtro-prof-buscar" placeholder="Nombre o especialidad..." />
+            </div>
+          </div>
+          <div class="tabla-wrapper">
+            <table id="tabla-profesores">
+              <thead>
+                <tr>
+                  <th>Profesor</th>
+                  <th>Especialidad</th>
+                  <th>Materias que imparte</th>
+                  <th>Grupos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pag-profesores" class="paginacion"></div>
+        </section>
+
+        <section id="vista-solicitudes" class="tab-panel">
+          <h2 class="seccion-titulo">Solicitar nueva materia</h2>
+
+          <form id="form-solicitud" class="form-crud" style="margin-bottom: 2rem;">
+            <h3 class="form-titulo">Nueva Solicitud</h3>
+            <div class="form-grid">
+              <div class="campo">
+                <label>Materia*</label>
+                <select id="sol-materia" name="materiaId">
+                  <option value="">-- Seleccionar materia --</option>
+                </select>
+              </div>
+              <div class="campo" style="grid-column: 1 / -1;">
+                <label>Motivo de la solicitud *</label>
+                <textarea id="sol-motivo" name="motivo" rows="3"
+                  style="width:100%; padding:0.6rem; border:1px solid var(--gray-200); border-radius:var(--radius); font-size:0.9rem; resize:vertical; font-family:inherit;"
+                  placeholder="Escribe por qué necesitas inscribirte en esta materia..."></textarea>
+              </div>
+            </div>
+            <div class="form-acciones">
+              <button type="submit" class="btn-primary">Enviar Solicitud</button>
+            </div>
+          </form>
+
+          <h3 style="font-size:1rem; font-weight:700; margin-bottom:1rem; padding-bottom:0.5rem; border-bottom:2px solid var(--primary-lt);">
+            Mis Solicitudes
+          </h3>
+          <div class="tabla-wrapper">
+            <table id="tabla-solicitudes">
+              <thead>
+                <tr>
+                  <th>Materia</th>
+                  <th>Motivo</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td colspan="4" class="sin-datos">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="pag-solicitudes" class="paginacion"></div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script type="module" src="./js/alumno.js"></script>
+</body>
+</html>
