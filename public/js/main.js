@@ -1,6 +1,8 @@
+import { db } from './firebase.js';
 import { observeAuth, logoutUser, crearUsuarioAuth } from './auth.js';
 import {
-  agregarAlumno, obtenerAlumnos, actualizarAlumno, eliminarAlumno,
+  agregarAlumno, actualizarAlumno, eliminarAlumno, obtenerAlumnos, 
+  obtenerAlumnosPaginaSiguiente, obtenerAlumnosPaginaAnterior, 
   agregarDocente, obtenerDocentes, actualizarDocente, eliminarDocente,
   agregarMateria, obtenerMaterias, actualizarMateria, eliminarMateria,
   agregarGrupo, obtenerGrupos, actualizarGrupo, eliminarGrupo,
@@ -28,6 +30,10 @@ let editandoInscripcionId = null;
 let gruposInscripcion = [];
 let usuarioActual = null;
 
+let primerDocAlumno = null; 
+let ultimoDocAlumno = null;  
+const TAMANO_PAGINA = 10;    // registros por página
+
 observeAuth(usuario => {
   if (!usuario) {
     window.location.href = 'login.html';
@@ -36,7 +42,7 @@ observeAuth(usuario => {
   usuarioActual = usuario;
   const emailEl = document.getElementById('usuario-email');
   if (emailEl) emailEl.textContent = usuario.email;
-  cargarAlumnos();
+  cargarAlumnos(); // Carga la primera página de alumnos
   cargarDocentes();
   cargarMaterias();
   cargarGrupos();
@@ -67,14 +73,51 @@ function leerForm(formId, campos) {
   return datos;
 }
 
+// cargar alumnos de manera paginada 
 async function cargarAlumnos() {
   try {
-    const alumnos = await obtenerAlumnos();
-    renderizarTablaAlumnos(alumnos, editarAlumno, confirmarEliminarAlumno);
+    const resultado = await obtenerAlumnosPaginaSiguiente(TAMANO_PAGINA);
+    
+    primerDocAlumno = resultado.primerDoc;
+    ultimoDocAlumno = resultado.ultimoDoc;
+    
+    renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
   } catch (err) {
     mostrarNotificacion('Error al cargar alumnos: ' + err.message, 'error');
   }
 }
+
+document.getElementById('btn-alumno-ant')?.addEventListener('click', async () => {
+  if (!primerDocAlumno) return; // Corrección aplicada
+  try {
+    const resultado = await obtenerAlumnosPaginaAnterior(TAMANO_PAGINA, primerDocAlumno);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocAlumno = resultado.primerDoc;
+      ultimoDocAlumno = resultado.ultimoDoc;
+      renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    } else {
+      mostrarNotificacion('Ya estás en la primera página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+document.getElementById('btn-alumno-sig')?.addEventListener('click', async () => {
+  if (!ultimoDocAlumno) return; 
+  try {
+    const resultado = await obtenerAlumnosPaginaSiguiente(TAMANO_PAGINA, ultimoDocAlumno);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocAlumno = resultado.primerDoc;
+      ultimoDocAlumno = resultado.ultimoDoc;
+      renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    } else {
+      mostrarNotificacion('Ya estás en la última página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
 
 document.getElementById('form-alumno')?.addEventListener('submit', async e => {
   e.preventDefault();
@@ -123,7 +166,8 @@ function editarAlumno(alumno) {
   llenarFormulario('form-alumno', alumno);
   document.getElementById('submit-alumno').textContent = 'Actualizar Alumno';
   document.getElementById('btn-cancelar-alumno').classList.remove('oculto');
-  document.getElementById('campo-pass-alumno').classList.add('oculto');
+  document.getElementById('campo-pass-alumno').classList.add('custom-oculto-o-similar'); 
+  document.getElementById('campo-pass-alumno')?.classList.add('oculto');
   document.getElementById('form-alumno').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -132,7 +176,7 @@ async function confirmarEliminarAlumno(id) {
   try {
     await eliminarAlumno(id);
     mostrarNotificacion('Alumno eliminado');
-    await cargarAlumnos();
+    await cargarAlumnos(); 
   } catch (err) {
     mostrarNotificacion('Error al eliminar: ' + err.message, 'error');
   }
@@ -589,7 +633,7 @@ async function confirmarEliminarInscripcion(id) {
   if (!confirm('¿Seguro que deseas eliminar esta inscripción?')) return;
   try {
     await eliminarInscripcion(id);
-    mostrarNotificacion('Inscripción eliminada');
+    mostrarNotificacion('Inscripción estimada');
     await cargarInscripciones();
   } catch (err) {
     mostrarNotificacion('Error al eliminar: ' + err.message, 'error');

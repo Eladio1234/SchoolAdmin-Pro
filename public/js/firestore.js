@@ -1,9 +1,9 @@
 import { db } from './firebase.js';
 import {
   collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
-  query, orderBy, where, serverTimestamp
-} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js"; // <-- ¡Aquí está la corrección a 10.8.1!
-
+  query, orderBy, where, serverTimestamp,
+  limit, startAfter, endBefore, limitToLast // <-- Añade estos 4 métodos de paginación
+} from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 const COL_ALUMNOS = 'alumnos';
 const COL_DOCENTES = 'docentes';
 const COL_MATERIAS = 'materias';
@@ -234,4 +234,55 @@ export async function validarInscripcion(alumnoId, grupoId, materiaId) {
   }
 
   return { valida: true };
+}
+
+
+// funciones para mantener, el orden de los alumnos cuando haya muchos (paginacon)
+
+export async function obtenerAlumnosPaginaSiguiente(tamanoPagina, ultimoDocVisible = null) {
+  let q;
+  
+  if (ultimoDocVisible) {
+    q = query(
+      collection(db, COL_ALUMNOS),
+      orderBy('createdAt', 'desc'),
+      startAfter(ultimoDocVisible),
+      limit(tamanoPagina)
+    );
+  } else {
+    q = query(
+      collection(db, COL_ALUMNOS),
+      orderBy('createdAt', 'desc'),
+      limit(tamanoPagina)
+    );
+  }
+
+  const snap = await getDocs(q);
+  
+  return {
+    documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })),
+    primerDoc: snap.docs[0] || null,
+    ultimoDoc: snap.docs[snap.docs.length - 1] || null,
+    totalEnPagina: snap.docs.length
+  };
+}
+
+export async function obtenerAlumnosPaginaAnterior(tamanoPagina, primerDocVisible) {
+  if (!primerDocVisible) return null;
+
+  const q = query(
+    collection(db, COL_ALUMNOS),
+    orderBy('createdAt', 'desc'),
+    endBefore(primerDocVisible),
+    limitToLast(tamanoPagina)
+  );
+
+  const snap = await getDocs(q);
+
+  return {
+    documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })),
+    primerDoc: snap.docs[0] || null,
+    ultimoDoc: snap.docs[snap.docs.length - 1] || null,
+    totalEnPagina: snap.docs.length
+  };
 }

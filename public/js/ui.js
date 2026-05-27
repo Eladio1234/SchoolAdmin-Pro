@@ -1,6 +1,6 @@
-import { auth } from './firebase.js';
+import { auth, db } from './firebase.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-import { obtenerRolPorEmail } from './firestore.js'; // <-- Importación añadida para leer los roles
+import { obtenerRolPorEmail } from './firestore.js'; 
 
 const userEmailSpan = document.getElementById('useremail');
 const logoutBtn = document.getElementById('logoutbtn');
@@ -44,7 +44,8 @@ function redirigirSegunRol(rol) {
     else if (rol === 'alumno') window.location.href = 'dashboard-alumno.html';
     else window.location.href = 'login.html';
 }
-//cerrar secipon
+
+//cerrar seccion
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
         try {
@@ -55,7 +56,7 @@ if (logoutBtn) {
     });
 }
 
-// funcipens de interfaz d eusuario , tabla 
+// funciones de interfaz de usuario , tabla 
 
 export function mostrarNotificacion(mensaje, tipo = 'success') {
   const notif = document.getElementById('notificacion');
