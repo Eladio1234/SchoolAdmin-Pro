@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Iniciar Sesión – SchoolAdmin Pro</title>
+  <title>Iniciar Sesión - SchoolAdmin Pro</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/styles.css" />
 </head>
@@ -24,43 +24,11 @@
         <label for="password">Contraseña</label>
         <input type="password" id="password" name="password" placeholder="••••••••" required />
       </div>
-      <button type="submit" class="btn-primary btn-block">Entrar</button>
+      <button type="submit" id="loginbtn" class="btn-primary btn-block">Entrar</button>
     </form>
   </div>
 
-  <script type="module">
-    import { loginUser, logoutUser, observeAuth } from './js/auth.js';
-    import { mostrarNotificacion } from './js/ui.js';
-    import { obtenerDocentePorEmail, obtenerAlumnoPorEmail } from './js/firestore.js';
-
-    observeAuth(async usuario => {
-      if (!usuario) return;
-      const docente = await obtenerDocentePorEmail(usuario.email);
-      if (docente) { window.location.href = 'dashboard-profesor.html'; return; }
-      const alumno = await obtenerAlumnoPorEmail(usuario.email);
-      if (alumno) { await logoutUser(); return; }
-      window.location.href = 'dashboard-admin.html';
-    });
-
-    document.getElementById('form-login').addEventListener('submit', async e => {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-
-      try {
-        const user = await loginUser(email, password);
-        const docente = await obtenerDocentePorEmail(user.email);
-        if (docente) { window.location.href = 'dashboard-profesor.html'; return; }
-        const alumno = await obtenerAlumnoPorEmail(user.email);
-        if (alumno) { window.location.href = 'dashboard-alumno.html'; return; }
-        window.location.href = 'dashboard-admin.html';
-      } catch (err) {
-        const msg = (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password')
-          ? 'Correo o contraseña incorrectos'
-          : 'Error al iniciar sesión';
-        mostrarNotificacion(msg, 'error');
-      }
-    });
-  </script>
+  <script type="module" src="./js/ui.js"></script>
+  <script type="module" src="./js/login.js"></script>
 </body>
 </html>
