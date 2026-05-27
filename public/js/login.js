@@ -1,5 +1,5 @@
 import { loginUser } from './auth.js';
-import { obtenerDocentePorEmail, obtenerAlumnoPorEmail } from './firestore.js';
+import { obtenerRolPorEmail } from './firestore.js'; // Cambiamos las importaciones
 
 const loginForm = document.getElementById('loginform');
 const errorMsg = document.getElementById('errormsg');
@@ -16,24 +16,29 @@ loginForm.addEventListener('submit', async (e) => {
 
     try {
         const user = await loginUser(email, password);
-        const docente = await obtenerDocentePorEmail(user.email);
-        if (docente) {
-          window.location.href = 'dashboard-profesor.html';
-          return;
+        
+        // Consultamos el rol global del usuario
+        const rol = await obtenerRolPorEmail(user.email);
+
+        if (rol === 'profesor' || rol === 'docente') {
+            window.location.href = 'dashboard-profesor.html';
+        } else if (rol === 'alumno') {
+            window.location.href = 'dashboard-alumno.html';
+        } else if (rol === 'admin') {
+            window.location.href = 'dashboard-admin.html';
+        } else {
+            // Si por alguna razón está autenticado pero no tiene rol en Firestore
+            throw new Error('rol-no-encontrado');
         }
-        const alumno = await obtenerAlumnoPorEmail(user.email);
-        if (alumno) {
-          window.location.href = 'dashboard-alumno.html';
-          return;
-        }
-        window.location.href = 'dashboard-admin.html';
         
     } catch (error) {
         errorMsg.style.display = 'block';
         if(error.code === 'auth/invalid-credential') {
             errorMsg.innerText = 'Correo o contraseña incorrectos.';
+        } else if (error.message === 'rol-no-encontrado') {
+            errorMsg.innerText = 'Usuario sin rol asignado. Contacta al administrador.';
         } else {
-            errorMsg.innerText = 'Ocurrió un error, Intentalo de nuevo.';
+            errorMsg.innerText = 'Ocurrió un error. Inténtalo de nuevo.';
         }
     } finally {
         loginBtn.innerText = 'Entrar al Sistema';

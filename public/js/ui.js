@@ -1,21 +1,50 @@
 import { auth } from './firebase.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { obtenerRolPorEmail } from './firestore.js'; // <-- Importación añadida para leer los roles
 
 const userEmailSpan = document.getElementById('useremail');
 const logoutBtn = document.getElementById('logoutbtn');
 
-// Mostrar email del usuario activo si el elemento existe en el DOM
-if (userEmailSpan) {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
+// proteccion de las rutas 
+onAuthStateChanged(auth, async (user) => {
+    const rutaActual = window.location.pathname.split("/").pop() || ""; 
+    const rutasPublicas = ['login.html', 'register.html', 'index.html', ''];
+
+    if (user) {
+        if (userEmailSpan) {
             userEmailSpan.innerText = user.email;
-        } else {
+        }
+
+        // si la ruta no es publica verificmaos los permisos
+        if (!rutasPublicas.includes(rutaActual)) {
+            const rol = await obtenerRolPorEmail(user.email);
+            
+            // Reglas de redirección por seguridad
+            if (rutaActual === 'dashboard-admin.html' && rol !== 'admin') {
+                redirigirSegunRol(rol);
+            }
+            if (rutaActual === 'dashboard-profesor.html' && rol !== 'profesor' && rol !== 'docente' && rol !== 'admin') {
+                redirigirSegunRol(rol);
+            }
+            if (rutaActual === 'dashboard-alumno.html' && rol !== 'alumno' && rol !== 'admin') {
+                redirigirSegunRol(rol);
+            }
+        }
+    } else {
+        if (!rutasPublicas.includes(rutaActual)) {
             window.location.href = 'login.html';
         }
-    });
-}
+    }
+});
 
-// Lógica para cerrar sesión si el botón existe
+// cada quien a su rol 
+function redirigirSegunRol(rol) {
+    if (rol === 'admin') window.location.href = 'dashboard-admin.html';
+    else if (rol === 'profesor' || rol === 'docente') window.location.href = 'dashboard-profesor.html';
+    else if (rol === 'alumno') window.location.href = 'dashboard-alumno.html';
+    else window.location.href = 'login.html';
+}
+//cerrar secipon
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
         try {
@@ -25,6 +54,8 @@ if (logoutBtn) {
         }
     });
 }
+
+// funcipens de interfaz d eusuario , tabla 
 
 export function mostrarNotificacion(mensaje, tipo = 'success') {
   const notif = document.getElementById('notificacion');
