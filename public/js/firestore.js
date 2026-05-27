@@ -2,7 +2,7 @@ import { db } from './firebase.js';
 import {
   collection, addDoc, getDocs, doc, updateDoc, deleteDoc,
   query, orderBy, where, serverTimestamp,
-  limit, startAfter, endBefore, limitToLast // <-- Añade estos 4 métodos de paginación
+  limit, startAfter, endBefore, limitToLast 
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 const COL_ALUMNOS = 'alumnos';
 const COL_DOCENTES = 'docentes';
