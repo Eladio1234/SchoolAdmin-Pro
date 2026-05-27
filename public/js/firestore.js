@@ -348,3 +348,52 @@ export async function obtenerTodasLasCalificaciones() {
 export async function eliminarCalificacion(id) {
   await deleteDoc(doc(db, COL_CALIFICACIONES, id));
 }
+export async function obtenerInscripcionesPorAlumno(alumnoId) {
+  const q = query(collection(db, COL_INSCRIPCIONES), where('alumnoId', '==', alumnoId));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+export async function agregarInscripcionAlumno(datos) {
+  return await addDoc(collection(db, COL_INSCRIPCIONES), {
+    ...datos,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function cancelarInscripcion(id) {
+  await updateDoc(doc(db, COL_INSCRIPCIONES, id), {
+    status: 'cancelada',
+    updatedAt: serverTimestamp()
+  });
+}
+
+export async function obtenerCalificacionesPorAlumno(alumnoId) {
+  const q = query(collection(db, 'calificaciones'), where('alumnoId', '==', alumnoId));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
+}
+
+const COL_SOLICITUDES = 'solicitudes';
+
+export async function agregarSolicitud(datos) {
+  return await addDoc(collection(db, COL_SOLICITUDES), {
+    ...datos,
+    createdAt: serverTimestamp()
+  });
+}
+
+export async function obtenerSolicitudesPorAlumno(alumnoId) {
+  const q = query(
+    collection(db, COL_SOLICITUDES),
+    where('alumnoId', '==', alumnoId)
+  );
+  const snap = await getDocs(q);
+  const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  return docs.sort((a, b) => {
+    const ta = a.createdAt?.toMillis?.() ?? 0;
+    const tb = b.createdAt?.toMillis?.() ?? 0;
+    return tb - ta;
+  });
+}

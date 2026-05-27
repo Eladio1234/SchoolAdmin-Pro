@@ -30,5 +30,39 @@
 
   <script type="module" src="./js/ui.js"></script>
   <script type="module" src="./js/login.js"></script>
+  <script type="module">
+    import { loginUser, logoutUser, observeAuth } from './js/auth.js';
+    import { mostrarNotificacion } from './js/ui.js';
+    import { obtenerDocentePorEmail, obtenerAlumnoPorEmail } from './js/firestore.js';
+
+    observeAuth(async usuario => {
+      if (!usuario) return;
+      const docente = await obtenerDocentePorEmail(usuario.email);
+      if (docente) { window.location.href = 'dashboard-profesor.html'; return; }
+      const alumno = await obtenerAlumnoPorEmail(usuario.email);
+      if (alumno) { window.location.href = 'dashboard-alumno.html'; return; }
+      window.location.href = 'dashboard-admin.html';
+    });
+
+    document.getElementById('form-login').addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+
+      try {
+        const user = await loginUser(email, password);
+        const docente = await obtenerDocentePorEmail(user.email);
+        if (docente) { window.location.href = 'dashboard-profesor.html'; return; }
+        const alumno = await obtenerAlumnoPorEmail(user.email);
+        if (alumno) { window.location.href = 'dashboard-alumno.html'; return; }
+        window.location.href = 'dashboard-admin.html';
+      } catch (err) {
+        const msg = (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password')
+          ? 'Correo o contraseña incorrectos'
+          : 'Error al iniciar sesión';
+        mostrarNotificacion(msg, 'error');
+      }
+    });
+  </script>
 </body>
 </html>
