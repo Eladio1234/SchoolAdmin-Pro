@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard Admin – SchoolAdmin Pro</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./assets/styles.css" />
 </head>
 <body class="dashboard-page">
@@ -49,12 +50,24 @@
                 <input type="text" name="studentNumber" placeholder="Ej. A2024001" />
               </div>
               <div class="campo">
-                <label>Nombre completo *</label>
-                <input type="text" name="fullName" placeholder="Nombre(s) y Apellidos" />
+                <label>Apellido Paterno *</label>
+                <input type="text" name="apPaterno" placeholder="Ej. Garcia" />
+              </div>
+              <div class="campo">
+                <label>Apellido Materno *</label>
+                <input type="text" name="apMaterno" placeholder="Ej. Lopez" />
+              </div>
+              <div class="campo">
+                <label>Nombre(s) *</label>
+                <input type="text" name="nombre" placeholder="Ej. Juan" />
               </div>
               <div class="campo">
                 <label>Email *</label>
                 <input type="email" name="email" placeholder="alumno@escuela.edu" />
+              </div>
+              <div class="campo" id="campo-pass-alumno">
+                <label>Contraseña *</label>
+                <input type="password" name="password" placeholder="Min. 8 caracteres" minlength="8" autocomplete="new-password" />
               </div>
               <div class="campo">
                 <label>Teléfono * (10 dígitos)</label>
@@ -115,12 +128,24 @@
                 <input type="text" name="employeeNumber" placeholder="Ej. EMP001" />
               </div>
               <div class="campo">
-                <label>Nombre completo *</label>
-                <input type="text" name="fullName" placeholder="Nombre(s) y Apellidos" />
+                <label>Apellido Paterno *</label>
+                <input type="text" name="apPaterno" placeholder="Ej. Garcia" />
+              </div>
+              <div class="campo">
+                <label>Apellido Materno *</label>
+                <input type="text" name="apMaterno" placeholder="Ej. Lopez" />
+              </div>
+              <div class="campo">
+                <label>Nombre(s) *</label>
+                <input type="text" name="nombre" placeholder="Ej. Juan" />
               </div>
               <div class="campo">
                 <label>Email *</label>
                 <input type="email" name="email" placeholder="docente@escuela.edu" />
+              </div>
+              <div class="campo" id="campo-pass-docente">
+                <label>Contraseña *</label>
+                <input type="password" name="password" placeholder="Min. 8 caracteres" minlength="8" autocomplete="new-password" />
               </div>
               <div class="campo">
                 <label>Teléfono * (10 dígitos)</label>

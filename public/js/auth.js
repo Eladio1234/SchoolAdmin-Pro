@@ -1,10 +1,12 @@
-import { auth } from './firebase.js';
-import { 
-  signInWithEmailAndPassword, 
-  createUserWithEmailAndPassword, 
-  signOut, 
-  onAuthStateChanged 
+import { auth, firebaseConfig } from './firebase.js';
+import {
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  getAuth
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { initializeApp, deleteApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 
 // Iniciar sesión
 export const loginUser = async (email, password) => {
@@ -27,7 +29,16 @@ export async function logoutUser() {
   return await signOut(auth);
 }
 
-// Observador de estado de sesión
 export function observeAuth(callback) {
   return onAuthStateChanged(auth, callback);
+}
+
+export async function crearUsuarioAuth(email, password) {
+  const tempApp = initializeApp(firebaseConfig, `temp-${Date.now()}`);
+  const tempAuth = getAuth(tempApp);
+  try {
+    await createUserWithEmailAndPassword(tempAuth, email, password);
+  } finally {
+    await deleteApp(tempApp);
+  }
 }

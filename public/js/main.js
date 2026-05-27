@@ -1,15 +1,16 @@
-import { observeAuth, logoutUser } from './auth.js';
+import { observeAuth, logoutUser, crearUsuarioAuth } from './auth.js';
 import {
   agregarAlumno, obtenerAlumnos, actualizarAlumno, eliminarAlumno,
   agregarDocente, obtenerDocentes, actualizarDocente, eliminarDocente,
   agregarMateria, obtenerMaterias, actualizarMateria, eliminarMateria,
   agregarGrupo, obtenerGrupos, actualizarGrupo, eliminarGrupo,
   agregarInscripcion, obtenerInscripciones, actualizarInscripcion, eliminarInscripcion,
-  validarInscripcion
+  validarInscripcion, existeNumeroEstudiante, existeNumeroEmpleado,
+  agregarRolUsuario
 } from './firestore.js';
 import {
   validarEmail, validarTelefono, validarRequerido,
-  validarStudentNumber, validarEmployeeNumber
+  validarStudentNumber, validarEmployeeNumber, validarPassword
 } from './validators.js';
 import {
   mostrarNotificacion, renderizarTablaAlumnos, renderizarTablaDocentes,
@@ -77,17 +78,37 @@ async function cargarAlumnos() {
 
 document.getElementById('form-alumno')?.addEventListener('submit', async e => {
   e.preventDefault();
-  const datos = leerForm('form-alumno', ['studentNumber', 'fullName', 'email', 'phone', 'career', 'semester', 'status']);
-  if (!validarAlumno(datos)) return;
+  const datos = leerForm('form-alumno', ['studentNumber', 'apPaterno', 'apMaterno', 'nombre', 'email', 'phone', 'career', 'semester', 'status', 'password']);
+  datos.fullName = `${datos.nombre} ${datos.apPaterno} ${datos.apMaterno}`.trim();
+  if (!validarAlumno(datos, !editandoAlumnoId)) return;
   datos.semester = Number(datos.semester);
+  const password = datos.password;
+  delete datos.password;
 
   try {
     if (editandoAlumnoId) {
+      if (await existeNumeroEstudiante(datos.studentNumber, editandoAlumnoId)) {
+        mostrarNotificacion('Ya existe un alumno con ese No. Estudiante', 'error');
+        return;
+      }
       await actualizarAlumno(editandoAlumnoId, datos);
       mostrarNotificacion('Alumno actualizado correctamente');
       resetFormAlumno();
     } else {
-      await agregarAlumno(datos);
+      if (await existeNumeroEstudiante(datos.studentNumber)) {
+        mostrarNotificacion('Ya existe un alumno con ese No. Estudiante', 'error');
+        return;
+      }
+      try {
+        await crearUsuarioAuth(datos.email, password);
+      } catch (authErr) {
+        if (authErr.code !== 'auth/email-already-in-use') {
+          mostrarNotificacion('Error al crear cuenta: ' + authErr.message, 'error');
+          return;
+        }
+      }
+      await agregarRolUsuario(datos.email, 'alumno');
+      await agregarAlumno({ ...datos, role: 'alumno' });
       mostrarNotificacion('Alumno agregado correctamente');
     }
     limpiarFormulario('form-alumno');
@@ -102,6 +123,7 @@ function editarAlumno(alumno) {
   llenarFormulario('form-alumno', alumno);
   document.getElementById('submit-alumno').textContent = 'Actualizar Alumno';
   document.getElementById('btn-cancelar-alumno').classList.remove('oculto');
+  document.getElementById('campo-pass-alumno').classList.add('oculto');
   document.getElementById('form-alumno').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -125,11 +147,12 @@ function resetFormAlumno() {
   editandoAlumnoId = null;
   document.getElementById('submit-alumno').textContent = 'Agregar Alumno';
   document.getElementById('btn-cancelar-alumno').classList.add('oculto');
+  document.getElementById('campo-pass-alumno').classList.remove('oculto');
 }
 
-function validarAlumno(datos) {
-  const requeridos = ['studentNumber', 'fullName', 'email', 'phone', 'career', 'semester', 'status'];
-  const etiquetas = { studentNumber: 'No. Estudiante', fullName: 'Nombre completo', email: 'Email', phone: 'Teléfono', career: 'Carrera', semester: 'Semestre', status: 'Estado' };
+function validarAlumno(datos, esNuevo = false) {
+  const requeridos = ['studentNumber', 'apPaterno', 'apMaterno', 'nombre', 'email', 'phone', 'career', 'semester', 'status'];
+  const etiquetas = { studentNumber: 'No. Estudiante', apPaterno: 'Apellido Paterno', apMaterno: 'Apellido Materno', nombre: 'Nombre', email: 'Email', phone: 'Telefono', career: 'Carrera', semester: 'Semestre', status: 'Estado' };
   for (const campo of requeridos) {
     if (!validarRequerido(datos[campo])) {
       mostrarNotificacion(`El campo "${etiquetas[campo]}" es obligatorio`, 'error');
@@ -148,6 +171,16 @@ function validarAlumno(datos) {
     mostrarNotificacion('El teléfono debe tener 10 dígitos', 'error');
     return false;
   }
+  if (esNuevo) {
+    if (!validarRequerido(datos.password)) {
+      mostrarNotificacion('La contraseña es obligatoria', 'error');
+      return false;
+    }
+    if (!validarPassword(datos.password)) {
+      mostrarNotificacion('La contraseña debe tener al menos 8 caracteres', 'error');
+      return false;
+    }
+  }
   return true;
 }
 
@@ -162,17 +195,37 @@ async function cargarDocentes() {
 
 document.getElementById('form-docente')?.addEventListener('submit', async e => {
   e.preventDefault();
-  const datos = leerForm('form-docente', ['employeeNumber', 'fullName', 'email', 'phone', 'specialty', 'active']);
-  if (!validarDocente(datos)) return;
+  const datos = leerForm('form-docente', ['employeeNumber', 'apPaterno', 'apMaterno', 'nombre', 'email', 'phone', 'specialty', 'active', 'password']);
+  datos.fullName = `${datos.nombre} ${datos.apPaterno} ${datos.apMaterno}`.trim();
+  if (!validarDocente(datos, !editandoDocenteId)) return;
   datos.active = datos.active === 'true';
+  const password = datos.password;
+  delete datos.password;
 
   try {
     if (editandoDocenteId) {
+      if (await existeNumeroEmpleado(datos.employeeNumber, editandoDocenteId)) {
+        mostrarNotificacion('Ya existe un docente con ese No. Empleado', 'error');
+        return;
+      }
       await actualizarDocente(editandoDocenteId, datos);
       mostrarNotificacion('Docente actualizado correctamente');
       resetFormDocente();
     } else {
-      await agregarDocente(datos);
+      if (await existeNumeroEmpleado(datos.employeeNumber)) {
+        mostrarNotificacion('Ya existe un docente con ese No. Empleado', 'error');
+        return;
+      }
+      try {
+        await crearUsuarioAuth(datos.email, password);
+      } catch (authErr) {
+        if (authErr.code !== 'auth/email-already-in-use') {
+          mostrarNotificacion('Error al crear cuenta: ' + authErr.message, 'error');
+          return;
+        }
+      }
+      await agregarRolUsuario(datos.email, 'docente');
+      await agregarDocente({ ...datos, role: 'docente' });
       mostrarNotificacion('Docente agregado correctamente');
     }
     limpiarFormulario('form-docente');
@@ -187,6 +240,7 @@ function editarDocente(docente) {
   llenarFormulario('form-docente', docente);
   document.getElementById('submit-docente').textContent = 'Actualizar Docente';
   document.getElementById('btn-cancelar-docente').classList.remove('oculto');
+  document.getElementById('campo-pass-docente').classList.add('oculto');
   document.getElementById('form-docente').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -210,11 +264,12 @@ function resetFormDocente() {
   editandoDocenteId = null;
   document.getElementById('submit-docente').textContent = 'Agregar Docente';
   document.getElementById('btn-cancelar-docente').classList.add('oculto');
+  document.getElementById('campo-pass-docente').classList.remove('oculto');
 }
 
-function validarDocente(datos) {
-  const requeridos = ['employeeNumber', 'fullName', 'email', 'phone', 'specialty', 'active'];
-  const etiquetas = { employeeNumber: 'No. Empleado', fullName: 'Nombre completo', email: 'Email', phone: 'Teléfono', specialty: 'Especialidad', active: 'Estado' };
+function validarDocente(datos, esNuevo = false) {
+  const requeridos = ['employeeNumber', 'apPaterno', 'apMaterno', 'nombre', 'email', 'phone', 'specialty', 'active'];
+  const etiquetas = { employeeNumber: 'No. Empleado', apPaterno: 'Apellido Paterno', apMaterno: 'Apellido Materno', nombre: 'Nombre', email: 'Email', phone: 'Telefono', specialty: 'Especialidad', active: 'Estado' };
   for (const campo of requeridos) {
     if (!validarRequerido(datos[campo])) {
       mostrarNotificacion(`El campo "${etiquetas[campo]}" es obligatorio`, 'error');
@@ -232,6 +287,16 @@ function validarDocente(datos) {
   if (!validarTelefono(datos.phone)) {
     mostrarNotificacion('El teléfono debe tener 10 dígitos', 'error');
     return false;
+  }
+  if (esNuevo) {
+    if (!validarRequerido(datos.password)) {
+      mostrarNotificacion('La contraseña es obligatoria', 'error');
+      return false;
+    }
+    if (!validarPassword(datos.password)) {
+      mostrarNotificacion('La contraseña debe tener al menos 8 caracteres', 'error');
+      return false;
+    }
   }
   return true;
 }

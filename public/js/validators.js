@@ -17,3 +17,7 @@ export function validarStudentNumber(num) {
 export function validarEmployeeNumber(num) {
   return /^[A-Za-z0-9]{3,10}$/.test(num.trim());
 }
+
+export function validarPassword(password) {
+  return password && password.length >= 8;
+}
