@@ -38,7 +38,7 @@
       const docente = await obtenerDocentePorEmail(usuario.email);
       if (docente) { window.location.href = 'dashboard-profesor.html'; return; }
       const alumno = await obtenerAlumnoPorEmail(usuario.email);
-      if (alumno) { await logoutUser(); return; }
+      if (alumno) { window.location.href = 'dashboard-alumno.html'; return; }
       window.location.href = 'dashboard-admin.html';
     });
 
