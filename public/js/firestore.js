@@ -286,3 +286,53 @@ export async function obtenerAlumnosPaginaAnterior(tamanoPagina, primerDocVisibl
     totalEnPagina: snap.docs.length
   };
 }
+
+// paginacin docentes 
+
+export async function obtenerDocentesPaginaSiguiente(tamanoPagina, ultimoDocVisible = null) {
+  let q;
+  
+  if (ultimoDocVisible) {
+    q = query(
+      collection(db, COL_DOCENTES),
+      orderBy('createdAt', 'desc'),
+      startAfter(ultimoDocVisible),
+      limit(tamanoPagina)
+    );
+  } else {
+    q = query(
+      collection(db, COL_DOCENTES),
+      orderBy('createdAt', 'desc'),
+      limit(tamanoPagina)
+    );
+  }
+
+  const snap = await getDocs(q);
+  
+  return {
+    documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })),
+    primerDoc: snap.docs[0] || null,
+    ultimoDoc: snap.docs[snap.docs.length - 1] || null,
+    totalEnPagina: snap.docs.length
+  };
+}
+
+export async function obtenerDocentesPaginaAnterior(tamanoPagina, primerDocVisible) {
+  if (!primerDocVisible) return null;
+
+  const q = query(
+    collection(db, COL_DOCENTES),
+    orderBy('createdAt', 'desc'),
+    endBefore(primerDocVisible),
+    limitToLast(tamanoPagina)
+  );
+
+  const snap = await getDocs(q);
+
+  return {
+    documentos: snap.docs.map(d => ({ id: d.id, ...d.data() })),
+    primerDoc: snap.docs[0] || null,
+    ultimoDoc: snap.docs[snap.docs.length - 1] || null,
+    totalEnPagina: snap.docs.length
+  };
+}

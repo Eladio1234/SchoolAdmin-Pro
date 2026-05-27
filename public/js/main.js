@@ -4,6 +4,7 @@ import {
   agregarAlumno, actualizarAlumno, eliminarAlumno, obtenerAlumnos, 
   obtenerAlumnosPaginaSiguiente, obtenerAlumnosPaginaAnterior, 
   agregarDocente, obtenerDocentes, actualizarDocente, eliminarDocente,
+  obtenerDocentesPaginaSiguiente, obtenerDocentesPaginaAnterior, // Importamos las funciones de paginación para docentes
   agregarMateria, obtenerMaterias, actualizarMateria, eliminarMateria,
   agregarGrupo, obtenerGrupos, actualizarGrupo, eliminarGrupo,
   agregarInscripcion, obtenerInscripciones, actualizarInscripcion, eliminarInscripcion,
@@ -34,6 +35,10 @@ let primerDocAlumno = null;
 let ultimoDocAlumno = null;  
 const TAMANO_PAGINA = 10;    // registros por página
 
+// variables para paginación docentes
+let primerDocDocente = null;
+let ultimoDocDocente = null;
+
 observeAuth(usuario => {
   if (!usuario) {
     window.location.href = 'login.html';
@@ -42,8 +47,8 @@ observeAuth(usuario => {
   usuarioActual = usuario;
   const emailEl = document.getElementById('usuario-email');
   if (emailEl) emailEl.textContent = usuario.email;
-  cargarAlumnos(); // Carga la primera página de alumnos
-  cargarDocentes();
+  cargarAlumnos(); 
+  cargarDocentes(); 
   cargarMaterias();
   cargarGrupos();
   cargarInscripciones();
@@ -88,7 +93,7 @@ async function cargarAlumnos() {
 }
 
 document.getElementById('btn-alumno-ant')?.addEventListener('click', async () => {
-  if (!primerDocAlumno) return; // Corrección aplicada
+  if (!primerDocAlumno) return; 
   try {
     const resultado = await obtenerAlumnosPaginaAnterior(TAMANO_PAGINA, primerDocAlumno);
     if (resultado && resultado.documentos.length > 0) {
@@ -111,6 +116,54 @@ document.getElementById('btn-alumno-sig')?.addEventListener('click', async () =>
       primerDocAlumno = resultado.primerDoc;
       ultimoDocAlumno = resultado.ultimoDoc;
       renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    } else {
+      mostrarNotificacion('Ya estás en la última página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+// paginación docente
+async function cargarDocentes() {
+  try {
+    const resultado = await obtenerDocentesPaginaSiguiente(TAMANO_PAGINA);
+    
+    primerDocDocente = resultado.primerDoc;
+    ultimoDocDocente = resultado.ultimoDoc;
+    
+    renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+  } catch (err) {
+    mostrarNotificacion('Error al cargar docentes: ' + err.message, 'error');
+  }
+}
+
+// paginación docente
+document.getElementById('btn-docente-ant')?.addEventListener('click', async () => {
+  if (!primerDocDocente) return;
+  try {
+    const resultado = await obtenerDocentesPaginaAnterior(TAMANO_PAGINA, primerDocDocente);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocDocente = resultado.primerDoc;
+      ultimoDocDocente = resultado.ultimoDoc;
+      renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+    } else {
+      mostrarNotificacion('Ya estás en la primera página', 'info');
+    }
+  } catch (err) {
+    mostrarNotificacion('Error al navegar: ' + err.message, 'error');
+  }
+});
+
+// paginación docente
+document.getElementById('btn-docente-sig')?.addEventListener('click', async () => {
+  if (!ultimoDocDocente) return;
+  try {
+    const resultado = await obtenerDocentesPaginaSiguiente(TAMANO_PAGINA, ultimoDocDocente);
+    if (resultado && resultado.documentos.length > 0) {
+      primerDocDocente = resultado.primerDoc;
+      ultimoDocDocente = resultado.ultimoDoc;
+      renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
     } else {
       mostrarNotificacion('Ya estás en la última página', 'info');
     }
@@ -226,15 +279,6 @@ function validarAlumno(datos, esNuevo = false) {
     }
   }
   return true;
-}
-
-async function cargarDocentes() {
-  try {
-    const docentes = await obtenerDocentes();
-    renderizarTablaDocentes(docentes, editarDocente, confirmarEliminarDocente);
-  } catch (err) {
-    mostrarNotificacion('Error al cargar docentes: ' + err.message, 'error');
-  }
 }
 
 document.getElementById('form-docente')?.addEventListener('submit', async e => {
