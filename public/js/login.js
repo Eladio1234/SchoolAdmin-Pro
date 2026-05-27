@@ -2,7 +2,7 @@ import { loginUser } from './auth.js';
 import { obtenerRolPorEmail } from './firestore.js';
 import { mostrarNotificacion } from './ui.js';
 
-const loginForm = document.getElementById('form-login'); // ID corregido
+const loginForm = document.getElementById('form-login');
 const loginBtn = document.getElementById('loginbtn');
 
 loginForm.addEventListener('submit', async (e) => {
