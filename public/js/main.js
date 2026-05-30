@@ -32,9 +32,29 @@ let editandoInscripcionId = null;
 let gruposInscripcion = [];
 let usuarioActual = null;
 
-let primerDocAlumno = null; 
-let ultimoDocAlumno = null;  
-const TAMANO_PAGINA = 10;    // registros por página
+let primerDocAlumno = null;
+let ultimoDocAlumno = null;
+const TAMANO_PAGINA = 3;     // registros por página (alumnos y docentes): pagina después de 3
+
+let paginaAlumno = 1;
+let paginaDocente = 1;
+
+// muestra u oculta el contenedor de paginación según haga falta más de una página
+function actualizarVisibilidadPaginacion(contenedorId, documentos, estaEnPrimeraPagina) {
+  const contenedor = document.getElementById(contenedorId);
+  if (!contenedor) return;
+  // En la primera página, si caben todos los registros (menos de un bloque completo)
+  // no hace falta paginar; en páginas posteriores siempre mostramos los controles.
+  const necesitaPaginacion = !estaEnPrimeraPagina || documentos.length >= TAMANO_PAGINA;
+  contenedor.style.display = necesitaPaginacion ? 'flex' : 'none';
+}
+
+function actualizarEstadoBotonesPersona(prefijo, documentos, pagina) {
+  const btnAnt = document.getElementById(`btn-${prefijo}-ant`);
+  const btnSig = document.getElementById(`btn-${prefijo}-sig`);
+  if (btnAnt) btnAnt.disabled = pagina <= 1;
+  if (btnSig) btnSig.disabled = documentos.length < TAMANO_PAGINA;
+}
 
 // variables para paginación docentes
 let primerDocDocente = null;
@@ -84,11 +104,14 @@ function leerForm(formId, campos) {
 async function cargarAlumnos() {
   try {
     const resultado = await obtenerAlumnosPaginaSiguiente(TAMANO_PAGINA);
-    
+
     primerDocAlumno = resultado.primerDoc;
     ultimoDocAlumno = resultado.ultimoDoc;
-    
+    paginaAlumno = 1;
+
     renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+    actualizarVisibilidadPaginacion('paginacion-alumnos', resultado.documentos, true);
+    actualizarEstadoBotonesPersona('alumno', resultado.documentos, paginaAlumno);
   } catch (err) {
     mostrarNotificacion('Error al cargar alumnos: ' + err.message, 'error');
   }
@@ -101,7 +124,9 @@ document.getElementById('btn-alumno-ant')?.addEventListener('click', async () =>
     if (resultado && resultado.documentos.length > 0) {
       primerDocAlumno = resultado.primerDoc;
       ultimoDocAlumno = resultado.ultimoDoc;
+      paginaAlumno = Math.max(1, paginaAlumno - 1);
       renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+      actualizarEstadoBotonesPersona('alumno', resultado.documentos, paginaAlumno);
     } else {
       mostrarNotificacion('Ya estás en la primera página', 'info');
     }
@@ -117,8 +142,11 @@ document.getElementById('btn-alumno-sig')?.addEventListener('click', async () =>
     if (resultado && resultado.documentos.length > 0) {
       primerDocAlumno = resultado.primerDoc;
       ultimoDocAlumno = resultado.ultimoDoc;
+      paginaAlumno = paginaAlumno + 1;
       renderizarTablaAlumnos(resultado.documentos, editarAlumno, confirmarEliminarAlumno);
+      actualizarEstadoBotonesPersona('alumno', resultado.documentos, paginaAlumno);
     } else {
+      document.getElementById('btn-alumno-sig').disabled = true;
       mostrarNotificacion('Ya estás en la última página', 'info');
     }
   } catch (err) {
@@ -130,11 +158,14 @@ document.getElementById('btn-alumno-sig')?.addEventListener('click', async () =>
 async function cargarDocentes() {
   try {
     const resultado = await obtenerDocentesPaginaSiguiente(TAMANO_PAGINA);
-    
+
     primerDocDocente = resultado.primerDoc;
     ultimoDocDocente = resultado.ultimoDoc;
-    
+    paginaDocente = 1;
+
     renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+    actualizarVisibilidadPaginacion('paginacion-docentes', resultado.documentos, true);
+    actualizarEstadoBotonesPersona('docente', resultado.documentos, paginaDocente);
   } catch (err) {
     mostrarNotificacion('Error al cargar docentes: ' + err.message, 'error');
   }
@@ -148,7 +179,9 @@ document.getElementById('btn-docente-ant')?.addEventListener('click', async () =
     if (resultado && resultado.documentos.length > 0) {
       primerDocDocente = resultado.primerDoc;
       ultimoDocDocente = resultado.ultimoDoc;
+      paginaDocente = Math.max(1, paginaDocente - 1);
       renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+      actualizarEstadoBotonesPersona('docente', resultado.documentos, paginaDocente);
     } else {
       mostrarNotificacion('Ya estás en la primera página', 'info');
     }
@@ -165,8 +198,11 @@ document.getElementById('btn-docente-sig')?.addEventListener('click', async () =
     if (resultado && resultado.documentos.length > 0) {
       primerDocDocente = resultado.primerDoc;
       ultimoDocDocente = resultado.ultimoDoc;
+      paginaDocente = paginaDocente + 1;
       renderizarTablaDocentes(resultado.documentos, editarDocente, confirmarEliminarDocente);
+      actualizarEstadoBotonesPersona('docente', resultado.documentos, paginaDocente);
     } else {
+      document.getElementById('btn-docente-sig').disabled = true;
       mostrarNotificacion('Ya estás en la última página', 'info');
     }
   } catch (err) {
