@@ -10,8 +10,8 @@ import {
 } from './firestore.js';
 import { mostrarNotificacion } from './ui.js';
 
-const POR_PAGINA_GRUPOS = 5;
-const POR_PAGINA_ALUMNOS = 8;
+const POR_PAGINA_GRUPOS = 10;
+const POR_PAGINA_ALUMNOS = 10;
 
 let docenteActual = null;
 let todosLosGrupos = [];
@@ -179,7 +179,7 @@ function renderAlumnos() {
         <td>${a.semester ?? '-'}</td>
         <td>${noCurso
           ? '<span class="badge badge-dropped">No Curso</span>'
-          : `<input type="number" class="input-cal" min="1" max="100" value="${calActual}" placeholder="1-100" />`
+          : `<input type="number" class="input-cal" min="0" max="10" step="0.5" value="${calActual}" placeholder="0-10" />`
         }</td>
         <td class="acciones">
           ${!noCurso ? '<button class="btn-editar btn-guardar">Guardar</button>' : ''}
@@ -208,8 +208,12 @@ function renderAlumnos() {
 }
 
 async function guardarCal(alumnoId, calificacion) {
-  if (isNaN(calificacion) || calificacion <= 0 || calificacion > 100) {
-    mostrarNotificacion('La calificacion debe ser mayor a 0 y hasta 100', 'error');
+  if (isNaN(calificacion) || calificacion < 0 || calificacion > 10) {
+    mostrarNotificacion('La calificacion debe estar entre 0 y 10', 'error');
+    return;
+  }
+  if (calificacion % 0.5 !== 0) {
+    mostrarNotificacion('La calificacion solo acepta decimales de .0 o .5 (ej. 7, 7.5, 8)', 'error');
     return;
   }
   try {
